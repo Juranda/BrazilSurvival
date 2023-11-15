@@ -1,0 +1,36 @@
+button {
+    cursor: pointer;
+    border-radius: 2rem;
+    border-color: black;
+    border-style: solid;
+    user-select: none;
+    padding: .25rem;
+    
+    font-size: 1.3rem;
+
+    background-color: yellow;
+    text-align: left;
+    min-height: 3rem;
+    min-width: 7rem;
+
+    transition-duration: .2s;
+}
+
+button:active {
+    background-color: blue;
+    border-color: blue;
+    color: white;
+}
+
+button:hover {
+    transform: translate(0px, -3px);
+}
+
+// button::before {
+//     display: flex;
+//     content: '';
+//     background-color: gray;
+//     height: inherit;
+//     width: inherit;
+//     position: absolute;
+// }

@@ -1,0 +1,126 @@
+@import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200@400&display=swap');
+@import url('./styles/button.scss');
+
+* {
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    font-family: 'Inconsolata', monospace;
+}
+
+body {
+    font-size: 1.5rem;
+}
+
+
+
+
+#root {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: green;
+}
+
+.game {
+    background-color: white;
+    min-width: 1rem;
+    max-width: 30rem;
+    
+    overflow: hidden;
+
+    border-radius: 20px;
+    border: .2rem solid white;
+    box-shadow: 0px 0px 10px 5px rgb(0, 0, 0, 25%);
+
+    .title {
+        padding: .5rem;
+        background-color: blue;
+        color: white;
+        text-align: center;
+    }
+
+    .game-body {
+        min-height: 15rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding: 2rem;
+
+        .challenge-title {
+            margin-bottom: 1.7rem;
+        }
+    }
+
+    .answer-options {
+        display: flex;
+        margin-block: 2rem;
+        gap: 1rem;
+        flex-direction: column;
+
+
+        .answer-option {
+            padding-inline: 1.5rem;
+
+            :active {
+                background-color: orange;
+            }
+        }
+    }
+
+    .challenge-consequenses {
+        display: flex;
+        gap: 1rem;
+        flex-direction: column;
+        align-items: start;
+
+        .answer {
+            font-weight: bold;
+        }
+
+        .effects-taken {
+
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            div {
+                display: flex;
+                gap: 1rem;
+            }
+        }
+    }
+
+    .next-challenge-button {
+        align-self: flex-end;
+        text-align: center;
+        height: 3rem;
+        width: 7rem;
+    }
+
+
+}
+
+.player-stats-element {
+    display: flex;
+    gap: 1.5rem;
+    padding: .7rem;
+    padding-left: 1.2rem;
+    background-color: blue;
+
+    div {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+
+        p {
+            color: white;
+        }
+    }
+}
+
+.icon {
+    max-height: 2rem;
+    max-width: 4rem;
+}
