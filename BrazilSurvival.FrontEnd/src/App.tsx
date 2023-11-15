@@ -38,7 +38,7 @@ export default function App() {
 
   function onAnswerSelected(index: number) {
     setSelectedAnswer(index);
-    updatePlayerStats(challenge.options[index].effect);
+    updatePlayerStats(effect);
   }
 
   function updatePlayerStats(answerEffect: AnswerEffect) {
@@ -73,6 +73,12 @@ export default function App() {
     fetchRandomChallenges();
   }
 
+  var effect = {};
+
+  if(selectedAnswer !== -1) {
+    effect = { }
+  }
+
   return (
     <div className="game">
       <h2 className="title">Brazil Survival</h2>
@@ -96,14 +102,18 @@ export default function App() {
                   <p className="answer">{challenge.options[selectedAnswer].answer}</p>
                   <p>{challenge.options[selectedAnswer].consequence}</p>
                   { 
-                    Object.entries(challenge.options[selectedAnswer].effect).length > 0 &&
+                    Object.entries(effect).length > 0 &&
                     <div className="effects-taken">
                       <p>Você recebeu: </p>
-                      { Object.entries(challenge.options[selectedAnswer].effect).map(([key, value], i) => 
-                        <div key={i}>
-                          <p>{value > 0 ? `+${value}` : value}</p> 
-                          <img className="icon" src={IMAGES[key as keyof typeof IMAGES]} />
-                        </div>)}
+                      { Object.entries(effect).map(([key, value], i) => 
+                        {
+                          const numericValue = value as number;
+
+                          return <div key={i}>
+                            <p>{numericValue > 0 ? `+${numericValue}` : numericValue}</p>
+                            <img className="icon" src={IMAGES[key as keyof typeof IMAGES]} />
+                          </div>;
+                        })}
                     </div>
                   }
                 </div>
