@@ -39,6 +39,7 @@ export default function App() {
   function onAnswerSelected(index: number) {
     setSelectedAnswer(index);
     updatePlayerStats(effect);
+    updatePlayerStats(effect);
   }
 
   function updatePlayerStats(answerEffect: AnswerEffect) {
@@ -106,6 +107,7 @@ export default function App() {
                   <p className="answer">{challenge.options[selectedAnswer].answer}</p>
                   <p>{challenge.options[selectedAnswer].consequence}</p>
                   { 
+                    Object.entries(effect).length > 0 &&
                     Object.entries(effect).length > 0 &&
                     <div className="effects-taken">
                       <p>Você recebeu: </p>
