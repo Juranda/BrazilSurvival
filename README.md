@@ -5,15 +5,17 @@ Um jogo de desafios onde as escolhas que você faz te ajudam ou te atrapalham à
 Desafios são compostos desta forma: 
 ```json
     {
-        "title": "string",
+        "id": 0,
+        "title": "",
         "options": [
             {
-                "action": "string",
-                "answer": "string",
-                "consequence": "string",
-                "health": "number",
-                "money": "number",
-                "power": "number",
+                "id": 0,
+                "action": "",
+                "answer": "",
+                "consequence": "",
+                "health": 0,
+                "money": 0,
+                "power": 0
             }
             "..."
         ]
