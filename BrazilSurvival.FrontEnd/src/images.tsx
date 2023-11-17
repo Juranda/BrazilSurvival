@@ -3,9 +3,9 @@ import moneyImage from "./assets/dinheiro.jpg";
 import powerImage from "./assets/poder.png";
 
 const IMAGES = {
-    vida: heartImage as string,
-    dinheiro: moneyImage as string,
-    poder: powerImage as string
+    health: heartImage as string,
+    money: moneyImage as string,
+    power: powerImage as string
 }
 
 export default IMAGES;

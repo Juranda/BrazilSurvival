@@ -1,7 +1,13 @@
 import IMAGES from "../images";
 import AnswerEffect from "../models/AnswerEffect";
 
-interface ChallengeConsequencesProps { answer: string; consequence: string; effect: AnswerEffect; onNextChallenge: () => void; }
+interface ChallengeConsequencesProps { 
+  answer: string;
+  consequence: string; 
+  effect: AnswerEffect; 
+  onNextChallenge: () => void; 
+}
+
 export default function ChallengeConsequences({ answer, consequence, effect, onNextChallenge }: ChallengeConsequencesProps) {
   return (
     <>
@@ -11,13 +17,14 @@ export default function ChallengeConsequences({ answer, consequence, effect, onN
         {Object.entries(effect).length > 0 &&
           Object.entries(effect).length > 0 &&
           <div className="effects-taken">
-            <p>Você recebeu: </p>
             {Object.entries(effect).map(([key, value], i) => {
               const numericValue = value as number;
               if (numericValue === undefined || numericValue === 0) return;
 
+              const positivo = numericValue > 0;
+
               return <div key={i}>
-                <p>{numericValue > 0 ? `+${numericValue}` : numericValue}</p>
+                <p style={{color: positivo ? "green" : "red"}}>{positivo ? `+${numericValue}` : numericValue}</p>
                 <img className="icon" src={IMAGES[key as keyof typeof IMAGES]} />
               </div>;
             })}

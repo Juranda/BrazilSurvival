@@ -9,15 +9,15 @@ interface PlayerStatsElementsProps {
 export default function PlayerStatsElements({ playerStats }: PlayerStatsElementsProps) {
   return <div className="player-stats-element">
     <div>
-      <img className="icon" src={IMAGES.vida} />
+      <img className="icon" src={IMAGES.health} />
       <p>{playerStats.vida}</p>
     </div>
     <div>
-      <img className="icon" src={IMAGES.dinheiro} />
+      <img className="icon" src={IMAGES.money} />
       <p>{playerStats.dinheiro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
     </div>
     <div>
-      <img className="icon" src={IMAGES.poder} />
+      <img className="icon" src={IMAGES.power} />
       <p>{playerStats.poder}</p>
     </div>
   </div>;
