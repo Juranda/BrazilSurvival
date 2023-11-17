@@ -1,17 +1,20 @@
 import { useEffect, useState } from "react";
-import AnswerOption from "./components/AnswerOption";
 import PlayerStatsElements from "./components/PlayerStatsElements";
 import PlayerStats from "./components/PlayerStats";
-import IMAGES from "./images";
-import AnswerEffect from "./models/AnswerEffect";
 import StaticDatabase from "./static-database";
 import Challenge from "./models/Challenge";
+import ChallengeQuestionary from "./components/ChallengeQuestionary";
+import ChallengeConsequences from "./components/ChallengeConsequences";
+import GameOver from "./components/GameOver";
+import AnswerEffect from "./models/AnswerEffect";
+
+const NOT_SELECTED_ANSWER = -1;
 
 export default function App() {
   const [isGameOver, setGameOver] = useState(false);
   const [challenges, setChallenges] = useState<Challenge[]>([]);
   const [challenge, setChallenge] = useState<Challenge>({title: "", options: []});
-  const [selectedAnswer, setSelectedAnswer] = useState(-1);
+  const [selectedAnswer, setSelectedAnswer] = useState(NOT_SELECTED_ANSWER);
   const [playerStats, setPlayerStats] = useState<PlayerStats>({
     vida: 8,
     dinheiro: 5,
@@ -37,31 +40,27 @@ export default function App() {
   }
 
   function onAnswerSelected(index: number) {
+    updatePlayerStats(effect);
     setSelectedAnswer(index);
-    updatePlayerStats(effect);
-    updatePlayerStats(effect);
   }
 
-  function updatePlayerStats(answerEffect: AnswerEffect) {
-
+  function updatePlayerStats(effect: AnswerEffect) {
     setPlayerStats((prev) => ({
-      vida: prev.vida + (answerEffect.vida || 0),
-      dinheiro: prev.dinheiro + (answerEffect.dinheiro || 0),
-      poder: prev.poder + (answerEffect.poder || 0),
+      vida: prev.vida + (effect.vida || 0),
+      dinheiro: prev.dinheiro + (effect.dinheiro || 0),
+      poder: prev.poder + (effect.poder || 0),
     }));
   }
 
   function onNextChallenge() {
-
-    console.log(playerStats);
-    if(playerStats.vida <= 0 && playerStats.dinheiro <= 0 && playerStats.poder <= 0) {
+    if(playerStats.vida <= 0 || playerStats.dinheiro <= 0 || playerStats.poder <= 0) {
       setGameOver(true);
       return;
     }
 
     const lastingChallenges = [...challenges];
     const nextChallenge = lastingChallenges.pop();
-    setSelectedAnswer(-1);
+    setSelectedAnswer(NOT_SELECTED_ANSWER);
     
     if(nextChallenge !== undefined) {
       
@@ -74,15 +73,12 @@ export default function App() {
     fetchRandomChallenges();
   }
 
-  var effect = {};
-
-  if(selectedAnswer !== -1) {
-    effect = {
-      vida: challenge.options[selectedAnswer].health,
-      dinheiro: challenge.options[selectedAnswer].money,
-      poder: challenge.options[selectedAnswer].power,
-    }
+  const effect: AnswerEffect = {
+    vida: (challenge.options[selectedAnswer]?.health || 0),
+    dinheiro: (challenge.options[selectedAnswer]?.money || 0),
+    poder: (challenge.options[selectedAnswer]?.power || 0),
   }
+  
 
   return (
     <div className="game">
@@ -90,42 +86,16 @@ export default function App() {
       <div className="game-body">
         {
           isGameOver ? 
-          <h2>Você perdeu!</h2> : 
+          <GameOver/> : 
           <>
             {
-              selectedAnswer === -1 ?
-              <>
-                <h4 className="challenge-title">{challenge.title}</h4>
-                <div className="answer-options">
-                  {
-                    challenge.options.map((v, i) => <AnswerOption key={i} onAnswerSelected={() => onAnswerSelected(i)} text={`${i + 1}. ${v.action}`}/>)
-                  }
-                </div> 
-              </> : 
-              <>
-                <div className="challenge-consequenses">
-                  <p className="answer">{challenge.options[selectedAnswer].answer}</p>
-                  <p>{challenge.options[selectedAnswer].consequence}</p>
-                  { 
-                    Object.entries(effect).length > 0 &&
-                    Object.entries(effect).length > 0 &&
-                    <div className="effects-taken">
-                      <p>Você recebeu: </p>
-                      { Object.entries(effect).map(([key, value], i) => 
-                        {
-                          const numericValue = value as number;
-                          if(numericValue === undefined) return;
-
-                          return <div key={i}>
-                            <p>{numericValue > 0 ? `+${numericValue}` : numericValue}</p>
-                            <img className="icon" src={IMAGES[key as keyof typeof IMAGES]} />
-                          </div>;
-                        })}
-                    </div>
-                  }
-                </div>
-                <button className="next-challenge-button" onClick={onNextChallenge}>Próximo</button>
-              </>
+              selectedAnswer === NOT_SELECTED_ANSWER ?
+              <ChallengeQuestionary challenge={challenge} onAnswerSelected={onAnswerSelected}/> : 
+              <ChallengeConsequences 
+                answer={challenge.options[selectedAnswer].answer} 
+                consequence={challenge.options[selectedAnswer].consequence} 
+                effect={effect} 
+                onNextChallenge={onNextChallenge}/>
             }
           </>
         }
@@ -134,6 +104,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
