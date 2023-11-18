@@ -1,5 +1,5 @@
 export default interface AnswerEffect {
-  vida?: number;
-  dinheiro?: number;
-  poder?: number;
+  health?: number;
+  money?: number;
+  power?: number;
 }

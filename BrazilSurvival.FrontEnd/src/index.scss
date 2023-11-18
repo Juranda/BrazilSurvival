@@ -8,12 +8,10 @@
     font-family: 'Inconsolata', monospace;
 }
 
-body {
-    font-size: 1.5rem;
+html {
+    // Define a escala de toda a aplicação
+    font-size: 12px;
 }
-
-
-
 
 #root {
     display: flex;
@@ -22,6 +20,10 @@ body {
     align-items: center;
     height: 100vh;
     background-color: green;
+}
+
+body {
+    font-size: 1.5rem;
 }
 
 .game {
