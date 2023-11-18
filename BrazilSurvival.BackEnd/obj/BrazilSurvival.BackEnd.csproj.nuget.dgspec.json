@@ -1,25 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Dev\\brazilSurvival\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj": {}
+    "C:\\Dev\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj": {}
   },
   "projects": {
-    "C:\\Dev\\brazilSurvival\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj": {
+    "C:\\Dev\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Dev\\brazilSurvival\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj",
+        "projectUniqueName": "C:\\Dev\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj",
         "projectName": "BrazilSurvival.BackEnd",
-        "projectPath": "C:\\Dev\\brazilSurvival\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj",
-        "packagesPath": "C:\\Users\\ADM\\.nuget\\packages\\",
-        "outputPath": "C:\\Dev\\brazilSurvival\\BrazilSurvival\\BrazilSurvival.BackEnd\\obj\\",
+        "projectPath": "C:\\Dev\\BrazilSurvival\\BrazilSurvival.BackEnd\\BrazilSurvival.BackEnd.csproj",
+        "packagesPath": "C:\\Users\\felip\\.nuget\\packages\\",
+        "outputPath": "C:\\Dev\\BrazilSurvival\\BrazilSurvival.BackEnd\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\ADM\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\felip\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net7.0"
         ],
         "sources": {
+          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -56,7 +58,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.404\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.401\\RuntimeIdentifierGraph.json"
         }
       }
     }
