@@ -1,5 +1,4 @@
 using BrazilSurvival.BackEnd.Models.Domain;
-using BrazilSurvival.BackEnd.Models.DTO;
 
 namespace BrazilSurvival.BackEnd.Repos;
 

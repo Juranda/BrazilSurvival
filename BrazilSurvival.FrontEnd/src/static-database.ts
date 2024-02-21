@@ -77,7 +77,3 @@ class StaticDatabase {
 }
 
 export default StaticDatabase;
-
-interface Backend {
-    getRandomChallenges(quantity: number): Promise<Challenge[]>
-}

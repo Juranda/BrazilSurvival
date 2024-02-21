@@ -1,14 +1,19 @@
 import IMAGES from "../images";
 import AnswerEffect from "../models/AnswerEffect";
+import ChallengeOption from "../models/ChallengeOption";
 
 interface ChallengeConsequencesProps { 
-  answer: string;
-  consequence: string; 
-  effect: AnswerEffect; 
-  onNextChallenge: () => void; 
+  selectedOption: ChallengeOption,
+  onNextChallenge: () => void
 }
 
-export default function ChallengeConsequences({ answer, consequence, effect, onNextChallenge }: ChallengeConsequencesProps) {
+export default function ChallengeConsequences({ selectedOption, onNextChallenge }: ChallengeConsequencesProps) {
+  const { answer, consequence } = selectedOption;
+  const effect = {
+    health: selectedOption.health,
+    money: selectedOption.money,
+    power: selectedOption.power
+  } as AnswerEffect
   return (
     <>
       <div className="challenge-consequenses">
@@ -19,10 +24,10 @@ export default function ChallengeConsequences({ answer, consequence, effect, onN
           <div className="effects-taken">
             {Object.entries(effect).map(([key, value], i) => {
               const numericValue = value as number;
+              
               if (numericValue === undefined || numericValue === 0) return;
-
+              
               const positivo = numericValue > 0;
-
               return <div key={i}>
                 <p style={{color: positivo ? "green" : "red"}}>{positivo ? `+${numericValue}` : numericValue}</p>
                 <img className="icon" src={IMAGES[key as keyof typeof IMAGES]} />

@@ -1,211 +1,215 @@
-import { useEffect, useReducer, useState } from "react";
+import { useEffect, useReducer } from "react";
 import PlayerStatsElements from "./components/PlayerStatsElements";
-import PlayerStats from "./components/PlayerStats";
 import StaticDatabase from "./static-database";
 import Challenge from "./models/Challenge";
 import ChallengeQuestionary from "./components/ChallengeQuestionary";
 import ChallengeConsequences from "./components/ChallengeConsequences";
 import GameOver from "./components/GameOver";
-import AnswerEffect from "./models/AnswerEffect";
-import ChallengeOption from "./models/ChallengeOption";
+import { GameState } from "./custom-types/GameState";
+import { GameEventAction } from "./custom-types/GameEventAction";
 
 const ANSWER_NOT_SELECTED = -1;
 
-interface GameState {
-  gameIsOver: boolean,
-  challenges: Challenge[],
-  currentChallenge: Challenge,
-  selectedAnswer: number,
-  playerStats: PlayerStats
-}
-
-type GameEventPayload = Partial<GameState>;
-
-interface GameEventAction {
-  type: "on-next-challenge" | "on-answer-selected" | "on-game-over" | ""
-  payload: GameEventPayload 
-}
+const initialState: GameState = {
+  gameIsLoading: true,
+  gameIsOver: false,
+  challenges: [],
+  currentChallenge: {
+    title: "",
+    options: []
+  },
+  selectedAnswer: ANSWER_NOT_SELECTED,
+  playerStats: {
+    health: 8,
+    money: 5,
+    power: 3,
+  },
+  score: 0
+};
 
 export default function App() {
-  const [isGameOver, setGameOver] = useState(false);
-  const [challenges, setChallenges] = useState<Challenge[]>([]);
-  const [challenge, setChallenge] = useState<Challenge>({title: "", options: []});
-  const [hasChallenges, setHasChallenges] = useState(false);
-  const [selectedAnswer, setSelectedAnswer] = useState(ANSWER_NOT_SELECTED);
-  const [playerStats, setPlayerStats] = useState<PlayerStats>({
-    vida: 8,
-    dinheiro: 5,
-    poder: 3,
-  });
+  const [gameState, dispatchGameEvent] = useReducer(handleGameState, initialState);
 
-  const [state, dispatchGameEvent] = useReducer(handleGameState, {
-    gameIsOver: false,
-    challenges: [],
-    currentChallenge: {
-      title: "",
-      options: []
-    },
-    selectedAnswer: ANSWER_NOT_SELECTED,
-    playerStats: {
-      vida: 8,
-      dinheiro: 5,
-      poder: 3,
-    }
-  });
+  const {
+    gameIsLoading, 
+    gameIsOver, 
+    currentChallenge, 
+    selectedAnswer, 
+    playerStats, 
+    score 
+  } = gameState;
 
   useEffect(() => {
-    dispatchGameEvent({
-      type: "on-next-challenge",
-      payload: { }
-    });
-
+    initializeGameState();
   }, []);
 
   /**
-   * 
+   * Inicializa o estado do jogo.
+   * O estado poderia ser inicializado utilizando o `useReducer`, 
+   * porém, como é preciso fazer uma chamada à API a função precisa ser asíncrona, um caso que o `useReducer` não cobre.
+   */
+  async function initializeGameState() {
+    var newChallenges: Challenge[];
+    var newChallenge: Challenge;
+
+    newChallenges = await fetchRandomChallenges();
+    newChallenge = newChallenges.pop() as Challenge;
+
+    dispatchGameEvent({
+      type: "on-game-started",
+      payload: {
+        challenges: newChallenges,
+        currentChallenge: newChallenge,
+        gameIsLoading: false,
+      }
+    });
+  }
+
+  async function fetchRandomChallenges() {
+    var newChallenges: Challenge[];
+    try {
+      const response = await fetch(`http://localhost:${import.meta.env.SERVER_PORT}/challenges`);
+      newChallenges = response.status === 200 ? await response.json() : await StaticDatabase.getRandomChallenges()
+    } catch (error) {
+      newChallenges = await StaticDatabase.getRandomChallenges();
+    }
+  
+    return newChallenges;
+  }
+
+  /**
+   * Processa um novo estado depois que um `dispatchGameEvent()` foi disparado.
    * @param state Estado atual do jogo
    * @param action Evento discipado
    * @returns Novo estado atualizado
    */
   function handleGameState(state: GameState, action: GameEventAction): GameState {
+    const { health, money, power } = state.playerStats;
     switch (action.type) {
-      case "on-game-over":
-          return {
-            ...state,
-            gameIsOver: true
-          };
-      case "on-next-challenge":
-        if(action.payload.challenges === undefined) return { ...state };
+      case "on-game-started":
+        return { 
+          ...state, 
+          currentChallenge: action.payload.currentChallenge as Challenge, 
+          challenges: action.payload.challenges as Challenge[],
+          gameIsLoading: false,
+        }
+      case "on-answer-selected":
+        const newSelectedAnswer = action.payload.selectedAnswer;
 
-          var newChallenges: Challenge[];
-          var newChallenge: Challenge;
+        if(newSelectedAnswer === undefined) return { ...state };
+        if(newSelectedAnswer < -1) return { ...state };
 
-        if(action.payload.challenges.length === 0) {
-          // Não existem desafios, então, busque mais do servidor
-          fetchRandomChallenges()
-          .then(challenges => {
-            newChallenges = challenges;
-            const newChallengeOrUndefined = newChallenges.pop();
-
-            if(newChallengeOrUndefined === undefined) return;
-
-            newChallenge = newChallengeOrUndefined;
-          });
+        const selectedOption = state.currentChallenge.options[newSelectedAnswer];
+        
+        return {
+          ...state,
+          selectedAnswer: newSelectedAnswer,
+          playerStats: {
+            health: health + (selectedOption.health || 0),
+            money: money + (selectedOption.money || 0),
+            power: power + (selectedOption.power || 0)
+          }
         }
 
-        newChallenges = [...action.payload.challenges];
-        const newChallengeOrUndefined = newChallenges.pop();
-        if(newChallengeOrUndefined === undefined) return { ...state };
+      case "on-next-challenge":
+        const lastinhChallenges = [...state.challenges];
+        const nextChallenge = lastinhChallenges.pop();
+        const newScore = state.score + 1;
 
-        newChallenge = newChallengeOrUndefined;
+        if(nextChallenge === undefined) {
+          getNewChallenges();
+          return { 
+            ...state, 
+            selectedAnswer: ANSWER_NOT_SELECTED, 
+            gameIsLoading: true, 
+            score: newScore
+          };
+        }
 
         return {
           ...state,
-          challenges: newChallenges,
-          currentChallenge: newChallenge
-        };
-
-      case "on-answer-selected":
-        if(action.payload.selectedAnswer === undefined) return { ...state };
+          currentChallenge: nextChallenge,
+          challenges: lastinhChallenges,
+          selectedAnswer: ANSWER_NOT_SELECTED,
+          score: newScore
+        }
+      
+      case "on-game-over":
 
         return {
           ...state,
-          selectedAnswer: action.payload.selectedAnswer
-        };
-      default:
-        break;
+          gameIsOver: true,
+          gameIsLoading: false,
+        }
+
+      case "on-game-restarted":
+        initializeGameState();
+
+        return {
+          ...initialState
+        }
+
+      default: return { ...state };
     }
-
-
-    return { ...state };
   }
 
-  // async function setNewChallenges() {
-  //   setHasChallenges(false);
-
-  //   const newChallenges = await fetchRandomChallenges();
-  //   const newChallenge = newChallenges.pop();
-
-  //   if(newChallenge === undefined) {
-  //     setGameOver(true);
-  //     return;
-  //   }
-
-  //   setChallenges(newChallenges);
-  //   setChallenge(newChallenge);
-  //   setHasChallenges(true);
-  // }
-
-  async function fetchRandomChallenges() {
-    var newChallenges: Challenge[] = [];
-    try {
-      const response = await fetch('http://localhost:5079/challenges');
-      newChallenges = response.status === 200 ? await response.json() : await StaticDatabase.getRandomChallenges()
-    } catch (error) {
-      newChallenges = await StaticDatabase.getRandomChallenges();
-    }
-
-    return newChallenges;
-  }
-
-  function onAnswerSelected(index: number) {
-    const effect = getEffectFromChallengeOption(challenge.options[index]);
-
-    updatePlayerStats(effect);
-    setSelectedAnswer(index);
-  }
-
-  function updatePlayerStats(effect: AnswerEffect) {
-    setPlayerStats((prev) => ({
-      vida: prev.vida + (effect.health || 0),
-      dinheiro: prev.dinheiro + (effect.money || 0),
-      poder: prev.poder + (effect.power || 0),
-    }));
-  }
-
-  function onNextChallenge() {
-    if(playerStats.vida <= 0 || playerStats.dinheiro <= 0 || playerStats.poder <= 0) {
-      setGameOver(true);
-      return;
-    }
-
-    setSelectedAnswer(ANSWER_NOT_SELECTED);
+  async function getNewChallenges() {
+    const newChallenges = await fetchRandomChallenges();
+    const newChallenge = newChallenges.pop() as Challenge;
     
-    const lastingChallenges = [...challenges];
-    const nextChallenge = lastingChallenges.pop();
+    dispatchGameEvent({
+      type: "on-game-started",
+      payload: { 
+        challenges: newChallenges,
+        currentChallenge: newChallenge
+      }
+    });
+  }
 
-    if(nextChallenge === undefined) {
+  function handleOnNextChallenge() {
+    const { health, money, power } = playerStats;
+
+    if(health <= 0 || money <= 0 || power <= 0) {
+      dispatchGameEvent({
+        type: "on-game-over",
+        payload: {}
+      });
       return;
     }
 
-    setChallenges(lastingChallenges);
-    setChallenge(nextChallenge)
-  }
-
-  function getEffectFromChallengeOption(option: ChallengeOption) {
-    const { health, money, power } = option;
-    return { health, money, power };
+    dispatchGameEvent({
+     type: "on-next-challenge",
+     payload: {} 
+    });
   }
 
   return (
     <div className="game">
       <h2 className="title">Brazil Survival</h2>
-      <div className="game-body">
-        {
-          state.gameIsOver ? 
-          <GameOver/> : <>
-            {
-              selectedAnswer === ANSWER_NOT_SELECTED ?
-              <ChallengeQuestionary challenge={challenge} onAnswerSelected={onAnswerSelected}/> : 
-              <ChallengeConsequences 
-                answer={challenge.options[selectedAnswer].answer} 
-                consequence={challenge.options[selectedAnswer].consequence} 
-                effect={getEffectFromChallengeOption(challenge.options[selectedAnswer])} 
-                onNextChallenge={onNextChallenge}/>
-            }
-            </>
-        }
-      </div>
+      {
+        gameIsOver ? 
+          <GameOver score={score} restartGame={() => dispatchGameEvent({
+            type: "on-game-restarted",
+            payload: {}
+          })}/> :
+          !gameIsLoading ?
+          <div className="game-body">
+            <>
+              {
+                selectedAnswer === ANSWER_NOT_SELECTED ?
+                <ChallengeQuestionary 
+                  challenge={currentChallenge} 
+                  onAnswerSelected={(index: number) => dispatchGameEvent({
+                    type: "on-answer-selected", 
+                    payload: { selectedAnswer: index }
+                  })}/> : 
+                <ChallengeConsequences 
+                  selectedOption={currentChallenge.options[selectedAnswer]}
+                  onNextChallenge={handleOnNextChallenge}/>
+              }
+              </>
+            </div> : <div className="loading-challenges"><h1>Carregando desafios...</h1></div>
+      }
       <PlayerStatsElements playerStats={playerStats}/>
     </div>
   );

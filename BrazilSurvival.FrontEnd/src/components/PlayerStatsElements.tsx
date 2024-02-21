@@ -10,15 +10,15 @@ export default function PlayerStatsElements({ playerStats }: PlayerStatsElements
   return <div className="player-stats-element">
     <div>
       <img className="icon" src={IMAGES.health} />
-      <p>{playerStats.vida}</p>
+      <p>{playerStats.health}</p>
     </div>
     <div>
       <img className="icon" src={IMAGES.money} />
-      <p>{playerStats.dinheiro.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+      <p>{playerStats.money.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
     </div>
     <div>
       <img className="icon" src={IMAGES.power} />
-      <p>{playerStats.poder}</p>
+      <p>{playerStats.power}</p>
     </div>
   </div>;
 }

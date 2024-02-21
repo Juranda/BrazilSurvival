@@ -1,5 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inconsolata:wght@200@400&display=swap');
-@import url('./styles/button.scss');
+@import './styles/button.scss', './styles/generic-mixins.scss';
 
 * {
     padding: 0;
@@ -14,8 +14,7 @@ html {
 }
 
 #root {
-    display: flex;
-    flex-direction: column;
+    @include column;
     justify-content: center;
     align-items: center;
     height: 100vh;
@@ -45,9 +44,8 @@ body {
     }
 
     .game-body {
+        @include column;
         min-height: 15rem;
-        display: flex;
-        flex-direction: column;
         justify-content: space-between;
         padding: 2rem;
 
@@ -56,11 +54,71 @@ body {
         }
     }
 
+    .loading-challenges {
+        margin: 1rem;
+        font-size: .7rem;
+    }
+
+    .game-over {
+        @include column;
+        padding: 1rem;
+        gap: 1.5rem;
+        justify-content: space-evenly;
+        min-height: 15rem;
+        align-items: center;
+
+        .game-over-title {
+            text-align: center;
+        }
+
+        .game-over-desc {
+            text-align: center;
+        }
+
+        .over-initial {
+            @include column;
+            gap: 1rem;
+
+            .inputs {
+                @include row;
+                align-items: center;
+                justify-content: center;
+                gap: 2rem;
+            }
+            input {
+                border: none;
+                outline: none;
+                border-radius: 2rem;
+                text-align: center; 
+                background-color: rgb(241, 241, 241);
+                text-transform: uppercase;
+                font-size: 3rem;
+                max-width: 3rem;
+            }
+    
+            button {
+                text-align: center;
+            }
+        }
+
+        .over-error {
+            @include column;
+            gap: 2rem;
+            .buttons {
+                display: flex;
+                gap: 2rem;
+
+                button {
+                    padding-left: 1rem;
+                }
+            }
+        }
+    }
+
     .answer-options {
-        display: flex;
+        @include column;
         margin-block: 2rem;
         gap: 1rem;
-        flex-direction: column;
 
 
         .answer-option {
@@ -73,9 +131,8 @@ body {
     }
 
     .challenge-consequenses {
-        display: flex;
+        @include column;
         gap: 1rem;
-        flex-direction: column;
         align-items: start;
 
         .answer {
@@ -83,9 +140,7 @@ body {
         }
 
         .effects-taken {
-
-            display: flex;
-            flex-direction: column;
+            @include column;
             gap: 10px;
             div {
                 display: flex;
