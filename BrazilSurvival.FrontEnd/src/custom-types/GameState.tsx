@@ -1,4 +1,4 @@
-import PlayerStats from "../components/PlayerStats";
+import PlayerStats from "../components/game/PlayerStats";
 import Challenge from "../models/Challenge";
 
 export interface GameState {

@@ -8,11 +8,17 @@ public class StaticChallengeRepo : IChallengeRepo
     private List<Challenge> challenges;
 
     public StaticChallengeRepo() {
-
         string jsonArray = File.ReadAllText("staticChallenges.json");
-        challenges = JsonSerializer.Deserialize<Challenge[]>(jsonArray, new JsonSerializerOptions() {
+        
+        Challenge[]? possiblyNullChallenges = JsonSerializer.Deserialize<Challenge[]>(jsonArray, new JsonSerializerOptions() {
             PropertyNameCaseInsensitive = true
-        }).ToList();
+        });
+
+        if(possiblyNullChallenges == null) {
+            throw new Exception("Para utilizar a classe 'StaticChallengeRepo' é preciso configurar o arquivo 'staticChallenges.json' na pasta raiz da API.");
+        }
+
+        challenges = possiblyNullChallenges.ToList();
     }
 
     public async Task<List<Challenge>> GetChallengesAsync(int quantity = 10)

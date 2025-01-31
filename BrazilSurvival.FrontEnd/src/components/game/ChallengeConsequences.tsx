@@ -1,6 +1,6 @@
-import IMAGES from "../images";
-import AnswerEffect from "../models/AnswerEffect";
-import ChallengeOption from "../models/ChallengeOption";
+import IMAGES from "../../images";
+import AnswerEffect from "../../models/AnswerEffect";
+import ChallengeOption from "../../models/ChallengeOption";
 
 interface ChallengeConsequencesProps { 
   selectedOption: ChallengeOption,

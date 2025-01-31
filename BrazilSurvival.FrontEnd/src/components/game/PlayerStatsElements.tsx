@@ -1,5 +1,5 @@
 
-import IMAGES from "../images";
+import IMAGES from "../../images";
 import PlayerStats from "./PlayerStats";
 
 interface PlayerStatsElementsProps {

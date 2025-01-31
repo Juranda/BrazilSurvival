@@ -1,6 +1,6 @@
 namespace BrazilSurvival.BackEnd.Models.DTO;
 
-record PlayerScorePostRequest(
+public record PlayerScorePostRequest(
     string Name,
     int Score
 );

@@ -1,7 +1,4 @@
-using BrazilSurvival.BackEnd.Models.Domain;
-using BrazilSurvival.BackEnd.Models.DTO;
 using BrazilSurvival.BackEnd.Repos;
-using Microsoft.AspNetCore.Mvc;
 
 IChallengeRepo challengeRepo = new StaticChallengeRepo();
 IPlayerScoreRepo playerScoreRepo = new StaticPlayersRepo();
@@ -21,33 +18,30 @@ builder.Services.AddCors(
         .WithMethods("DELETE", "UPDATE")
         .AllowAnyHeader()));
 
+builder.Services.AddControllers();
+
+builder.Services.AddSingleton<IPlayerScoreRepo, StaticPlayersRepo>();
+builder.Services.AddScoped<IChallengeRepo, StaticChallengeRepo>();
+
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 app.UseCors();
 
-app.MapGet("/challenges", async () =>
+var group = app.MapGroup("/api");
+
+group.MapPost("/login", async () =>
 {
-    return await challengeRepo.GetChallengesAsync();
+    return await Task.FromResult("TOKEN");
 });
 
-app.MapGet("/players", async () =>
-{
-    var playersScores = await playerScoreRepo.GetPlayerScoresAsync();
+app.MapControllers();
 
-    return Results.Ok(playersScores);
-});
-
-app.MapPost("/players", async ([FromBody] PlayerScorePostRequest playerScorePostRequest) =>
-{
-    var playerScore = new PlayerScore()
-    {
-        Name = playerScorePostRequest.Name,
-        Score = playerScorePostRequest.Score
-    };
-
-    playerScore = await playerScoreRepo.PostPlayerScoreAsync(playerScore);
-
-    return Results.Created("/players", playerScore);
-});
-
-app.Run();
+app.Run("http://localhost:5000");
