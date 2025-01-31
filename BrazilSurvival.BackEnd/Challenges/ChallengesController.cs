@@ -1,3 +1,5 @@
+using AutoMapper;
+using BrazilSurvival.BackEnd.Challenges.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.Challenges;
@@ -7,10 +9,12 @@ namespace BrazilSurvival.BackEnd.Challenges;
 public class ChallengesController : ControllerBase
 {
     private readonly IChallengeRepo challengeRepo;
+    private readonly IMapper mapper;
 
-    public ChallengesController(IChallengeRepo challengeRepo)
+    public ChallengesController(IChallengeRepo challengeRepo, IMapper mapper)
     {
         this.challengeRepo = challengeRepo;
+        this.mapper = mapper;
     }
 
     [HttpGet]
@@ -18,11 +22,8 @@ public class ChallengesController : ControllerBase
     {
         var challenges = await challengeRepo.GetChallengesAsync();
 
-        if (challenges == null)
-        {
-            return NotFound();
-        }
+        var challengesDTO = mapper.Map<List<ChallengeDTO>>(challenges);
 
-        return Ok(challenges);
+        return Ok(challengesDTO);
     }
 }

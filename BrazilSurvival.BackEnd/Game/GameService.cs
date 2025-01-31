@@ -12,11 +12,11 @@ public class GameService
     {
         this.challengeRepo = challengeRepo;
     }
-    public async Task<Tuple<GameStats, List<Challenge>>> StartGame(GameStats? gameStats)
+    public async Task<Tuple<GameStatsDTO, List<Challenge>>> StartGame(GameStatsDTO? gameStats)
     {
         if (gameStats == null)
         {
-            gameStats = new GameStats(10, 10, 10);
+            gameStats = new GameStatsDTO(10, 10, 10);
         }
 
         var challenges = await challengeRepo.GetChallengesAsync();
@@ -24,11 +24,11 @@ public class GameService
         return new(gameStats, challenges);
     }
 
-    public async Task<AnswerChallengeResult> NextChallenge(GameStats stats, int challengeId, int answerId)
+    public async Task<AnswerChallengeResult> NextChallenge(GameStats stats, int challengeId, int optionId, bool requestNewChallenges)
     {
-
+        List<Challenge>? challenges = null;
         var challenge = await challengeRepo.GetChallengeAsync(challengeId);
-        var selectedOption = challenge.Options.FirstOrDefault(x => x.Id == answerId);
+        var selectedOption = challenge.Options.FirstOrDefault(x => x.Id == optionId);
 
         if (selectedOption is null)
         {
@@ -41,16 +41,18 @@ public class GameService
             stats.Power + selectedOption.Power
         );
 
+        if (requestNewChallenges)
+        {
+            challenges = await challengeRepo.GetChallengesAsync();
+        }
+
         bool isGameOver = newGameStats.Health <= 0 || newGameStats.Money <= 0 || newGameStats.Power <= 0;
 
-        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, newGameStats, isGameOver);
+        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, newGameStats, isGameOver, challenges);
+    }
+
+    public async Task<List<Challenge>> GetRandomChallenges()
+    {
+        return await challengeRepo.GetChallengesAsync();
     }
 }
-
-
-public record AnswerChallengeResult(
-    string answer,
-    string consequence,
-    GameStats newGameStats,
-    bool isGameOver
-);

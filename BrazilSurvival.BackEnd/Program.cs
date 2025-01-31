@@ -9,17 +9,20 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-builder.Services.AddCors(
-    options => options.AddDefaultPolicy(
-        policy => policy
-        .AllowAnyOrigin()
-        .WithMethods("DELETE", "UPDATE")
-        .AllowAnyHeader()));
+// builder.Services.AddCors(
+//     options => options.AddDefaultPolicy(
+//         policy => policy
+//         .AllowAnyOrigin()
+//         .WithMethods("DELETE", "UPDATE")
+//         .AllowAnyHeader()));
+
+builder.Services.AddDbContext<GameDbConext>(options => options.UseFirebird(builder.Configuration.GetConnectionString("BrazilSurvivalConnectionString")));
 
 builder.Services.AddScoped<IPlayerScoreRepo, EFContextPlayersScoresRepo>();
 builder.Services.AddScoped<IChallengeRepo, StaticChallengeRepo>();
 builder.Services.AddScoped<GameService>();
-builder.Services.AddDbContext<GameDbConext>(options => options.UseFirebird(builder.Configuration.GetConnectionString("BrazilSurvivalConnectionString")));
+
+builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
 
 builder.Services.AddSwaggerGen();
 

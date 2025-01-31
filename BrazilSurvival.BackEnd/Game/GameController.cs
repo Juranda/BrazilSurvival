@@ -1,4 +1,6 @@
+using AutoMapper;
 using BrazilSurvival.BackEnd.Challenges;
+using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.CustomActionFilters;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.PlayersScores;
@@ -10,29 +12,35 @@ namespace BrazilSurvival.BackEnd.Game;
 [ApiController]
 public class GameController : ControllerBase
 {
-    private readonly IPlayerScoreRepo playerScoreRepo;
     private readonly GameService gameService;
+    private readonly IMapper mapper;
 
-    public GameController(IPlayerScoreRepo playerScoreRepo, GameService gameService)
+    public GameController(GameService gameService, IMapper mapper)
     {
-        this.playerScoreRepo = playerScoreRepo;
         this.gameService = gameService;
+        this.mapper = mapper;
     }
 
     [HttpPost("start")]
     [ValidateModel]
     public async Task<IActionResult> Start([FromBody] GameStartRequest request)
     {
-        var result = await gameService.StartGame(request.gameStats);
+        var result = await gameService.StartGame(request.GameStats);
 
-        return await Task.FromResult(Ok(new GameStartResponse(result.Item1, result.Item2)));
+        return Ok(new GameStartResponse(result.Item1, result.Item2));
     }
 
     [HttpPost("next")]
     [ValidateModel]
     public async Task<IActionResult> NextChallenge([FromBody] GameNextChallengeRequest request)
     {
-        var result = await gameService.NextChallenge(request.gameStats, request.ChallengeId, request.AnswerId);
-        return await Task.FromResult(Ok(result));
+        var result = await gameService.NextChallenge(request.GameStats, request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
+
+        if (result == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(mapper.Map<AnswerChallengeResultDTO>(result));
     }
 }
