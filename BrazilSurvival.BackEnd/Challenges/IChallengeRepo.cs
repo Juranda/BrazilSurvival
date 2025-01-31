@@ -1,4 +1,4 @@
-using BrazilSurvival.BackEnd.Models;
+using BrazilSurvival.BackEnd.Challenges.Models;
 
 namespace BrazilSurvival.BackEnd.Challenges;
 

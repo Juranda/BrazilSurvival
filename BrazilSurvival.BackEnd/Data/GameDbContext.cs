@@ -1,4 +1,4 @@
-using BrazilSurvival.BackEnd.Models;
+using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 using Microsoft.EntityFrameworkCore;
 

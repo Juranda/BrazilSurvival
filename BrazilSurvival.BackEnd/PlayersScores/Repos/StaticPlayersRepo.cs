@@ -54,6 +54,9 @@ public class StaticPlayersRepo : IPlayerScoreRepo
 
         playerScore.Id = playersScores.Count();
 
+
+        playerScore.Id = playersScores.Count();
+
         playersScores.Add(playerScore);
 
         return await Task.FromResult(playerScore);

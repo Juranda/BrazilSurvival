@@ -1,4 +1,4 @@
-namespace BrazilSurvival.BackEnd.Models;
+namespace BrazilSurvival.BackEnd.Challenges.Models;
 
 public class Challenge
 {

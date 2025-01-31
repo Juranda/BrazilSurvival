@@ -1,6 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-using Microsoft.EntityFrameworkCore;
-
 namespace BrazilSurvival.BackEnd.PlayersScores.Models;
 
 public class PlayerScore {
