@@ -1,19 +1,13 @@
-using BrazilSurvival.BackEnd.Models.Domain;
-using BrazilSurvival.BackEnd.Models.DTO;
-using BrazilSurvival.BackEnd.Repos;
-using Microsoft.AspNetCore.Mvc;
-
-IChallengeRepo challengeRepo = new StaticChallengeRepo();
-IPlayerScoreRepo playerScoreRepo = new StaticPlayersRepo();
-
-string[] allowedOrigins =
-{
-    "https://app.brazilsurvival:3535",
-    "http://localhost:5173"
-};
+using BrazilSurvival.BackEnd.Challenges;
+using BrazilSurvival.BackEnd.Challenges.Repos;
+using BrazilSurvival.BackEnd.Data;
+using BrazilSurvival.BackEnd.PlayersScores;
+using BrazilSurvival.BackEnd.PlayersScores.Repos;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddCors(
     options => options.AddDefaultPolicy(
         policy => policy
@@ -21,33 +15,21 @@ builder.Services.AddCors(
         .WithMethods("DELETE", "UPDATE")
         .AllowAnyHeader()));
 
+builder.Services.AddScoped<IPlayerScoreRepo, EFContextPlayersScoresRepo>();
+builder.Services.AddScoped<IChallengeRepo, StaticChallengeRepo>();
+builder.Services.AddDbContext<GameDbConext>(options => options.UseFirebird(builder.Configuration.GetConnectionString("BrazilSurvivalConnectionString")));
+
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
 
+app.MapControllers();
 app.UseCors();
 
-app.MapGet("/challenges", async () =>
+if (app.Environment.IsDevelopment())
 {
-    return await challengeRepo.GetChallengesAsync();
-});
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
-app.MapGet("/players", async () =>
-{
-    var playersScores = await playerScoreRepo.GetPlayerScoresAsync();
-
-    return Results.Ok(playersScores);
-});
-
-app.MapPost("/players", async ([FromBody] PlayerScorePostRequest playerScorePostRequest) =>
-{
-    var playerScore = new PlayerScore()
-    {
-        Name = playerScorePostRequest.Name,
-        Score = playerScorePostRequest.Score
-    };
-
-    playerScore = await playerScoreRepo.PostPlayerScoreAsync(playerScore);
-
-    return Results.Created("/players", playerScore);
-});
-
-app.Run();
+app.Run("http://localhost:5000");

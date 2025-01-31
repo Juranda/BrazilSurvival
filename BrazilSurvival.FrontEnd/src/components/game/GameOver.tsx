@@ -19,7 +19,7 @@ export default function GameOver({ score, restartGame }: GameOverProps) {
 
     setGameOverState("registerning");
     try {
-      await fetch(`http://localhost:${import.meta.env.SERVER_PORT}/players`, {
+      await fetch(`http://localhost:${import.meta.env.SERVER_PORT}/playersScores`, {
         headers: {
           "Content-Type": "application/json",
         },

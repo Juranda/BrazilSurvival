@@ -1,4 +1,4 @@
-namespace BrazilSurvival.BackEnd.Models.Domain;
+namespace BrazilSurvival.BackEnd.Models;
 
 public class ChallengeOption
 {

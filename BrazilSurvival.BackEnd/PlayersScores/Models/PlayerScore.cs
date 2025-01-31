@@ -1,4 +1,7 @@
-namespace BrazilSurvival.BackEnd.Models.Domain;
+using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
+
+namespace BrazilSurvival.BackEnd.PlayersScores.Models;
 
 public class PlayerScore {
     public int Id { get; set; }

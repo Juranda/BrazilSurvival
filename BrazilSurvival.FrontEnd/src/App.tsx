@@ -1,216 +1,75 @@
-import { useEffect, useReducer } from "react";
-import PlayerStatsElements from "./components/PlayerStatsElements";
-import StaticDatabase from "./static-database";
-import Challenge from "./models/Challenge";
-import ChallengeQuestionary from "./components/ChallengeQuestionary";
-import ChallengeConsequences from "./components/ChallengeConsequences";
-import GameOver from "./components/GameOver";
-import { GameState } from "./custom-types/GameState";
-import { GameEventAction } from "./custom-types/GameEventAction";
-
-const ANSWER_NOT_SELECTED = -1;
-
-const initialState: GameState = {
-  gameIsLoading: true,
-  gameIsOver: false,
-  challenges: [],
-  currentChallenge: {
-    title: "",
-    options: []
-  },
-  selectedAnswer: ANSWER_NOT_SELECTED,
-  playerStats: {
-    health: 8,
-    money: 5,
-    power: 3,
-  },
-  score: 0
-};
+import { FormEvent, FormEventHandler, useRef } from "react";
 
 export default function App() {
-  const [gameState, dispatchGameEvent] = useReducer(handleGameState, initialState);
 
-  const {
-    gameIsLoading, 
-    gameIsOver, 
-    currentChallenge, 
-    selectedAnswer, 
-    playerStats, 
-    score 
-  } = gameState;
+  return <Login />
+}
 
-  useEffect(() => {
-    initializeGameState();
-  }, []);
+interface LoginProps {
+  isRegister?: boolean
+}
 
-  /**
-   * Inicializa o estado do jogo.
-   * O estado poderia ser inicializado utilizando o `useReducer`, 
-   * porém, como é preciso fazer uma chamada à API a função precisa ser asíncrona, um caso que o `useReducer` não cobre.
-   */
-  async function initializeGameState() {
-    var newChallenges: Challenge[];
-    var newChallenge: Challenge;
+interface LoginPostRequest {
+  email: string,
+  password: string,
+  repeatPassword: string
+}
 
-    newChallenges = await fetchRandomChallenges();
-    newChallenge = newChallenges.pop() as Challenge;
+interface LoginResponse {
+  token: string
+}
 
-    dispatchGameEvent({
-      type: "on-game-started",
-      payload: {
-        challenges: newChallenges,
-        currentChallenge: newChallenge,
-        gameIsLoading: false,
-      }
-    });
-  }
+function Login({ isRegister }: LoginProps) {
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const repeatPasswordRef = useRef<HTMLInputElement>(null);
 
-  async function fetchRandomChallenges() {
-    var newChallenges: Challenge[];
-    try {
-      const response = await fetch(`http://localhost:${import.meta.env.SERVER_PORT}/challenges`);
-      newChallenges = response.status === 200 ? await response.json() : await StaticDatabase.getRandomChallenges()
-    } catch (error) {
-      newChallenges = await StaticDatabase.getRandomChallenges();
-    }
-  
-    return newChallenges;
-  }
+  function onSubmit(event: FormEvent) {
+    event.preventDefault();
 
-  /**
-   * Processa um novo estado depois que um `dispatchGameEvent()` foi disparado.
-   * @param state Estado atual do jogo
-   * @param action Evento discipado
-   * @returns Novo estado atualizado
-   */
-  function handleGameState(state: GameState, action: GameEventAction): GameState {
-    const { health, money, power } = state.playerStats;
-    switch (action.type) {
-      case "on-game-started":
-        return { 
-          ...state, 
-          currentChallenge: action.payload.currentChallenge as Challenge, 
-          challenges: action.payload.challenges as Challenge[],
-          gameIsLoading: false,
-        }
-      case "on-answer-selected":
-        const newSelectedAnswer = action.payload.selectedAnswer;
+    const postObj: LoginPostRequest = {
+      "email": emailRef.current?.value ?? "",
+      "password": passwordRef.current?.value ?? "",
+      "repeatPassword": repeatPasswordRef.current?.value ?? "",
+    };
 
-        if(newSelectedAnswer === undefined) return { ...state };
-        if(newSelectedAnswer < -1) return { ...state };
-
-        const selectedOption = state.currentChallenge.options[newSelectedAnswer];
-        
-        return {
-          ...state,
-          selectedAnswer: newSelectedAnswer,
-          playerStats: {
-            health: health + (selectedOption.health || 0),
-            money: money + (selectedOption.money || 0),
-            power: power + (selectedOption.power || 0)
-          }
-        }
-
-      case "on-next-challenge":
-        const lastinhChallenges = [...state.challenges];
-        const nextChallenge = lastinhChallenges.pop();
-        const newScore = state.score + 1;
-
-        if(nextChallenge === undefined) {
-          getNewChallenges();
-          return { 
-            ...state, 
-            selectedAnswer: ANSWER_NOT_SELECTED, 
-            gameIsLoading: true, 
-            score: newScore
-          };
-        }
-
-        return {
-          ...state,
-          currentChallenge: nextChallenge,
-          challenges: lastinhChallenges,
-          selectedAnswer: ANSWER_NOT_SELECTED,
-          score: newScore
-        }
-      
-      case "on-game-over":
-
-        return {
-          ...state,
-          gameIsOver: true,
-          gameIsLoading: false,
-        }
-
-      case "on-game-restarted":
-        initializeGameState();
-
-        return {
-          ...initialState
-        }
-
-      default: return { ...state };
-    }
-  }
-
-  async function getNewChallenges() {
-    const newChallenges = await fetchRandomChallenges();
-    const newChallenge = newChallenges.pop() as Challenge;
+    console.log(postObj);
     
-    dispatchGameEvent({
-      type: "on-game-started",
-      payload: { 
-        challenges: newChallenges,
-        currentChallenge: newChallenge
-      }
-    });
+
+    //postLoginRegister(postObj);
   }
 
-  function handleOnNextChallenge() {
-    const { health, money, power } = playerStats;
-
-    if(health <= 0 || money <= 0 || power <= 0) {
-      dispatchGameEvent({
-        type: "on-game-over",
-        payload: {}
-      });
-      return;
-    }
-
-    dispatchGameEvent({
-     type: "on-next-challenge",
-     payload: {} 
+  async function postLoginRegister(data: LoginPostRequest) {
+    const response = await fetch(`http://localhost:${import.meta.env.SERVER_PORT}/login`, {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      body: JSON.stringify(data)
     });
+
+    const json = JSON.parse(await response.json()) as LoginResponse;
+    const token = json.token;
+
+    console.log(token);
   }
 
   return (
-    <div className="game">
-      <h2 className="title">Brazil Survival</h2>
-      {
-        gameIsOver ? 
-          <GameOver score={score} restartGame={() => dispatchGameEvent({
-            type: "on-game-restarted",
-            payload: {}
-          })}/> :
-          !gameIsLoading ?
-          <div className="game-body">
-            <>
-              {
-                selectedAnswer === ANSWER_NOT_SELECTED ?
-                <ChallengeQuestionary 
-                  challenge={currentChallenge} 
-                  onAnswerSelected={(index: number) => dispatchGameEvent({
-                    type: "on-answer-selected", 
-                    payload: { selectedAnswer: index }
-                  })}/> : 
-                <ChallengeConsequences 
-                  selectedOption={currentChallenge.options[selectedAnswer]}
-                  onNextChallenge={handleOnNextChallenge}/>
-              }
-              </>
-            </div> : <div className="loading-challenges"><h1>Carregando desafios...</h1></div>
-      }
-      <PlayerStatsElements playerStats={playerStats}/>
+    <div className="login">
+      <div className="login-wrapper">
+        <h1>Brazil Survival</h1>
+        <form onSubmit={onSubmit} className="login-form">
+          <input ref={emailRef} type="email" name="email" id="email-input" />
+          <input ref={passwordRef} type="password" name="password" id="password-input" />
+          {
+            isRegister && <input ref={repeatPasswordRef} type="repeat-password" name="repeat-password" id="password-input" />
+          }
+          <button  >{(isRegister ? "Registrar-se" : "Logar")}</button>
+        </form>
+        <div className="">
+          {(isRegister ? "Já tem uma conta? Para logar clique " : "Não tem uma conta? Para cadastrar-se clique ")} <a href="https://www.google.com.br">aqui</a>.
+        </div>
+      </div>
     </div>
   );
 }
