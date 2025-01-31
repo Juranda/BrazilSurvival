@@ -9,10 +9,13 @@ public class StaticPlayersRepo : IPlayerScoreRepo
         new PlayerScore() {
             Id = 0,
             Name = "FELIPE",
+            Name = "FELIPE",
             Score = 25
         }
         ,
         new PlayerScore() {
+            Id = 1,
+            Name = "SPACED",
             Id = 1,
             Name = "SPACED",
             Score = 50
@@ -20,14 +23,34 @@ public class StaticPlayersRepo : IPlayerScoreRepo
         ,new PlayerScore() {
             Id = 2,
             Name = "VINICS",
+            Id = 2,
+            Name = "VINICS",
             Score = 75
         },
         new PlayerScore() {
             Id = 3,
             Name = "SOFIS2",
+            Id = 3,
+            Name = "SOFIS2",
             Score = 100
         }
     };
+
+    public async Task<PlayerScore?> GetPlayerScoreAsync(int id)
+    {
+        var playerScores = playersScores.Where(x => x.Id == id);
+
+        PlayerScore? playerScore;
+
+        try {
+            playerScore = playerScores.Single();
+        } catch {
+            playerScore = null;
+        }
+
+        return await Task.FromResult(playerScore);
+    }
+
 
     public async Task<PlayerScore?> GetPlayerScoreAsync(int id)
     {
@@ -51,6 +74,9 @@ public class StaticPlayersRepo : IPlayerScoreRepo
 
     public async Task<PlayerScore> PostPlayerScoreAsync(PlayerScore playerScore)
     {
+
+        playerScore.Id = playersScores.Count();
+
 
         playerScore.Id = playersScores.Count();
 
