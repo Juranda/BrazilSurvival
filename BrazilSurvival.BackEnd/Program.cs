@@ -1,6 +1,7 @@
 using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Repos;
 using BrazilSurvival.BackEnd.Data;
+using BrazilSurvival.BackEnd.Game;
 using BrazilSurvival.BackEnd.PlayersScores;
 using BrazilSurvival.BackEnd.PlayersScores.Repos;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +18,7 @@ builder.Services.AddCors(
 
 builder.Services.AddScoped<IPlayerScoreRepo, EFContextPlayersScoresRepo>();
 builder.Services.AddScoped<IChallengeRepo, StaticChallengeRepo>();
+builder.Services.AddScoped<GameService>();
 builder.Services.AddDbContext<GameDbConext>(options => options.UseFirebird(builder.Configuration.GetConnectionString("BrazilSurvivalConnectionString")));
 
 builder.Services.AddSwaggerGen();

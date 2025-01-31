@@ -21,6 +21,17 @@ public class StaticChallengeRepo : IChallengeRepo
         challenges = possiblyNullChallenges.ToList();
     }
 
+    public Task<Challenge> GetChallengeAsync(int id)
+    {
+        var challenge = challenges.Find(x => x.Id == id);
+
+        if(challenge is null) {
+            throw new Exception("Invalid challenge id");
+        }
+
+        return Task.FromResult(challenge);
+    }
+
     public async Task<List<Challenge>> GetChallengesAsync(int quantity = 10)
     {
         return await Task.FromResult(challenges);

@@ -48,7 +48,7 @@ public class PlayersScoresController : ControllerBase
     {
         var playerScore = new PlayerScore()
         {
-            Name = request.Name,
+            Name = request.Name.ToUpper(),
             Score = request.Score
         };
 
