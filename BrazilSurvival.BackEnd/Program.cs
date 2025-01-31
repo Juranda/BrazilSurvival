@@ -1,4 +1,6 @@
+using BrazilSurvival.BackEnd.Data;
 using BrazilSurvival.BackEnd.Repos;
+using Microsoft.EntityFrameworkCore;
 
 IChallengeRepo challengeRepo = new StaticChallengeRepo();
 IPlayerScoreRepo playerScoreRepo = new StaticPlayersRepo();
@@ -11,6 +13,7 @@ string[] allowedOrigins =
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddControllers();
 builder.Services.AddCors(
     options => options.AddDefaultPolicy(
         policy => policy
@@ -18,10 +21,11 @@ builder.Services.AddCors(
         .WithMethods("DELETE", "UPDATE")
         .AllowAnyHeader()));
 
-builder.Services.AddControllers();
 
-builder.Services.AddSingleton<IPlayerScoreRepo, StaticPlayersRepo>();
+builder.Services.AddScoped<IPlayerScoreRepo, EFContextPlayersScoresRepo>();
 builder.Services.AddScoped<IChallengeRepo, StaticChallengeRepo>();
+builder.Services.AddDbContext<GameDbConext>(options =>
+options.UseFirebird(builder.Configuration.GetConnectionString("BrazilSurvivalConnectionString")));
 
 builder.Services.AddSwaggerGen();
 
@@ -34,13 +38,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
-
-var group = app.MapGroup("/api");
-
-group.MapPost("/login", async () =>
-{
-    return await Task.FromResult("TOKEN");
-});
 
 app.MapControllers();
 

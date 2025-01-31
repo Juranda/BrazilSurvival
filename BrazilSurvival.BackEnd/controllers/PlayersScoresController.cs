@@ -1,3 +1,4 @@
+using BrazilSurvival.BackEnd.Controllers.CustomActionFilters;
 using BrazilSurvival.BackEnd.Models.Domain;
 using BrazilSurvival.BackEnd.Models.DTO;
 using BrazilSurvival.BackEnd.Repos;
@@ -43,6 +44,7 @@ namespace BrazilSurvival.BackEnd.Controllers
         }
 
         [HttpPost]
+        [ValidateModel]
         public async Task<IActionResult> PostNewPlayerScore([FromBody] PlayerScorePostRequest request)
         {
             var playerScore = new PlayerScore()
