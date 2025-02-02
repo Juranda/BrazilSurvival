@@ -1,5 +1,6 @@
 using System.Text.Json;
 using BrazilSurvival.BackEnd.Challenges.Models;
+using BrazilSurvival.BackEnd.Game.Exceptions;
 
 namespace BrazilSurvival.BackEnd.Challenges.Repos;
 
@@ -26,7 +27,7 @@ public class StaticChallengeRepo : IChallengeRepo
         var challenge = challenges.Find(x => x.Id == id);
 
         if(challenge is null) {
-            throw new Exception("Invalid challenge id");
+            throw new NotFoundException("Invalid answer");
         }
 
         return Task.FromResult(challenge);

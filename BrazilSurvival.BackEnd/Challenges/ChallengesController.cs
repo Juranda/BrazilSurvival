@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.Challenges;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class ChallengesController : ControllerBase
 {

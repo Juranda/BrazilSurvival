@@ -6,7 +6,7 @@ namespace BrazilSurvival.BackEnd.Game;
 public record AnswerChallengeResultDTO(
     string Answer,
     string Consequence,
-    GameStatsDTO NewGameStats,
+    PlayerStatsDTO NewPlayerStats,
     bool IsGameOver,
     List<ChallengeDTO>? NewChallenges
 ); 

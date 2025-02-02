@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace BrazilSurvival.BackEnd.Game.Models.DTO;
+namespace BrazilSurvival.BackEnd.Game.Models;
 
-public record GameStatsDTO(
+public record PlayerStats(
     [Required]
     int Health = 10,
     [Required]

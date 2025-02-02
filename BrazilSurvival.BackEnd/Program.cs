@@ -1,7 +1,9 @@
+using System.Text.Json.Serialization;
 using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Repos;
 using BrazilSurvival.BackEnd.Data;
 using BrazilSurvival.BackEnd.Game;
+using BrazilSurvival.BackEnd.Game.Exceptions;
 using BrazilSurvival.BackEnd.PlayersScores;
 using BrazilSurvival.BackEnd.PlayersScores.Repos;
 using Microsoft.EntityFrameworkCore;
@@ -9,12 +11,11 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
-// builder.Services.AddCors(
-//     options => options.AddDefaultPolicy(
-//         policy => policy
-//         .AllowAnyOrigin()
-//         .WithMethods("DELETE", "UPDATE")
-//         .AllowAnyHeader()));
+
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
+{
+    options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+});
 
 builder.Services.AddDbContext<GameDbConext>(options => options.UseFirebird(builder.Configuration.GetConnectionString("BrazilSurvivalConnectionString")));
 
@@ -23,6 +24,12 @@ builder.Services.AddScoped<IChallengeRepo, StaticChallengeRepo>();
 builder.Services.AddScoped<GameService>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles));
+
+if (builder.Environment.IsProduction())
+{
+    builder.Services.AddExceptionHandler<ProcessErrorExceptionHandler>();
+    builder.Services.AddProblemDetails();
+}
 
 builder.Services.AddSwaggerGen();
 
@@ -37,4 +44,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.Run("http://localhost:5000");
+if(app.Environment.IsProduction())
+{
+    app.UseExceptionHandler();
+}
+
+
+app.Run("http://localhost:5000/api");

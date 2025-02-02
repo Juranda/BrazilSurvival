@@ -1,32 +1,36 @@
+using AutoMapper;
 using BrazilSurvival.BackEnd.CustomActionFilters;
+using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 using BrazilSurvival.BackEnd.PlayersScores.Models.DTO;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.PlayersScores;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class PlayersScoresController : ControllerBase
 {
     private readonly IPlayerScoreRepo playerScoreRepo;
+    private readonly IMapper mapper;
 
-    public PlayersScoresController(IPlayerScoreRepo playerScoreRepo)
+    public PlayersScoresController(IPlayerScoreRepo playerScoreRepo, IMapper mapper)
     {
         this.playerScoreRepo = playerScoreRepo;
+        this.mapper = mapper;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetPlayersScores()
     {
-        var playerScore = await playerScoreRepo.GetPlayerScoresAsync();
+        var playerScores = await playerScoreRepo.GetPlayerScoresAsync();
 
-        if (playerScore == null)
+        if (playerScores.Count == 0)
         {
             return NotFound();
         }
 
-        return Ok(playerScore);
+        return Ok(mapper.Map<List<PlayerScoreDTO>>(playerScores));
     }
 
     [HttpGet("{id}")]
@@ -39,7 +43,7 @@ public class PlayersScoresController : ControllerBase
             return NotFound();
         }
 
-        return Ok(playerScore);
+        return Ok(mapper.Map<PlayerScoreDTO>(playerScore));
     }
 
     [HttpPost]
@@ -54,6 +58,6 @@ public class PlayersScoresController : ControllerBase
 
         playerScore = await playerScoreRepo.PostPlayerScoreAsync(playerScore);
 
-        return CreatedAtAction(nameof(GetPlayerScore), new { playerScore.Id }, playerScore);
+        return CreatedAtAction(nameof(GetPlayerScore), new { playerScore.Id }, mapper.Map<PlayerScoreDTO>(playerScore));
     }
 }

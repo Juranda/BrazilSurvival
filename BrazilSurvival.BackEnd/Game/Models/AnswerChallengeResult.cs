@@ -1,12 +1,11 @@
 using BrazilSurvival.BackEnd.Challenges.Models;
-using BrazilSurvival.BackEnd.Game.Models.DTO;
 
-namespace BrazilSurvival.BackEnd.Game;
+namespace BrazilSurvival.BackEnd.Game.Models;
 
 public record AnswerChallengeResult(
     string Answer,
     string Consequence,
-    GameStats NewGameStats,
+    PlayerStats NewPlayerStats,
     bool IsGameOver,
     List<Challenge>? NewChallenges
 ); 

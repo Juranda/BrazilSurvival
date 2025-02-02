@@ -1,8 +1,9 @@
 import { FormEvent, FormEventHandler, useRef } from "react";
+import Game from "./components/game/Game";
 
 export default function App() {
 
-  return <Login />
+  return <Game />
 }
 
 interface LoginProps {

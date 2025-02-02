@@ -1,6 +1,7 @@
 using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Models;
-using BrazilSurvival.BackEnd.Game.Models.DTO;
+using BrazilSurvival.BackEnd.Game.Exceptions;
+using BrazilSurvival.BackEnd.Game.Models;
 
 namespace BrazilSurvival.BackEnd.Game;
 
@@ -12,43 +13,43 @@ public class GameService
     {
         this.challengeRepo = challengeRepo;
     }
-    public async Task<Tuple<GameStatsDTO, List<Challenge>>> StartGame(GameStatsDTO? gameStats)
+    public async Task<Tuple<PlayerStats, List<Challenge>>> StartGame(PlayerStats? playerStats)
     {
-        if (gameStats == null)
+        if (playerStats == null)
         {
-            gameStats = new GameStatsDTO(10, 10, 10);
+            playerStats = new PlayerStats(10, 10, 10);
         }
 
         var challenges = await challengeRepo.GetChallengesAsync();
 
-        return new(gameStats, challenges);
+        return new(playerStats, challenges);
     }
 
-    public async Task<AnswerChallengeResult> NextChallenge(GameStats stats, int challengeId, int optionId, bool requestNewChallenges)
+    public async Task<AnswerChallengeResult> NextChallenge(PlayerStats stats, int challengeId, int optionId, bool requestNewChallenges)
     {
         List<Challenge>? challenges = null;
         var challenge = await challengeRepo.GetChallengeAsync(challengeId);
-        var selectedOption = challenge.Options.FirstOrDefault(x => x.Id == optionId);
+        var selectedOption = challenge.Options.First(x => x.Id == optionId);
 
         if (selectedOption is null)
         {
-            throw new Exception("Invalid answer");
+            throw new NotFoundException("Invalid answer id");
         }
 
-        GameStats newGameStats = new(
+        PlayerStats newPlayerStats = new(
             stats.Health + selectedOption.Health,
             stats.Money + selectedOption.Money,
             stats.Power + selectedOption.Power
         );
 
-        if (requestNewChallenges)
+        bool isGameOver = newPlayerStats.Health <= 0 || newPlayerStats.Money <= 0 || newPlayerStats.Power <= 0;
+
+        if (requestNewChallenges && isGameOver == false)
         {
             challenges = await challengeRepo.GetChallengesAsync();
         }
 
-        bool isGameOver = newGameStats.Health <= 0 || newGameStats.Money <= 0 || newGameStats.Power <= 0;
-
-        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, newGameStats, isGameOver, challenges);
+        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, newPlayerStats, isGameOver, challenges);
     }
 
     public async Task<List<Challenge>> GetRandomChallenges()

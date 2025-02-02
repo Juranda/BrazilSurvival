@@ -2,13 +2,15 @@ using AutoMapper;
 using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.CustomActionFilters;
+using BrazilSurvival.BackEnd.Game.Exceptions;
+using BrazilSurvival.BackEnd.Game.Models;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.PlayersScores;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.Game;
 
-[Route("api/[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class GameController : ControllerBase
 {
@@ -21,26 +23,34 @@ public class GameController : ControllerBase
         this.mapper = mapper;
     }
 
+
     [HttpPost("start")]
     [ValidateModel]
-    public async Task<IActionResult> Start([FromBody] GameStartRequest request)
+    public async Task<IActionResult> Start([FromBody] PlayerStatsDTO? request)
     {
-        var result = await gameService.StartGame(request.GameStats);
-
-        return Ok(new GameStartResponse(result.Item1, result.Item2));
+        try
+        {
+            var result = await gameService.StartGame(mapper.Map<PlayerStats>(request));
+            return Ok(new GameStartResponse(mapper.Map<PlayerStatsDTO>(result.Item1), mapper.Map<List<ChallengeDTO>>(result.Item2)));
+        }
+        catch (NotFoundException e)
+        {
+            throw new ProcessException(e.Message, null ,StatusCodes.Status404NotFound);
+        }
     }
 
     [HttpPost("next")]
     [ValidateModel]
     public async Task<IActionResult> NextChallenge([FromBody] GameNextChallengeRequest request)
     {
-        var result = await gameService.NextChallenge(request.GameStats, request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
-
-        if (result == null)
+        try
         {
-            return NotFound();
+            var result = await gameService.NextChallenge(mapper.Map<PlayerStats>(request.PlayerStats), request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
+            return Ok(mapper.Map<AnswerChallengeResultDTO>(result));
         }
-
-        return Ok(mapper.Map<AnswerChallengeResultDTO>(result));
+        catch (NotFoundException e)
+        {
+            throw new ProcessException(e.Message, null, StatusCodes.Status404NotFound);
+        }
     }
 }
