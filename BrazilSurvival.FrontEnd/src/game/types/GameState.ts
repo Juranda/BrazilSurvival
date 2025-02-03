@@ -1,5 +1,6 @@
-import PlayerStats from "../components/game/PlayerStats";
-import Challenge from "../models/Challenge";
+import PlayerStats from "../components/PlayerStats";
+import Challenge from "./Challenge";
+import { NextChallengeAnswer } from "./NextChallengeAnswer";
 
 export interface GameState {
   gameIsLoading: boolean;
@@ -9,4 +10,5 @@ export interface GameState {
   selectedAnswer: number;
   playerStats: PlayerStats;
   score: number;
+  nextChallengeResult: NextChallengeAnswer
 }

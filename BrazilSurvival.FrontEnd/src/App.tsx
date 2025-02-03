@@ -1,9 +1,15 @@
-import { FormEvent, FormEventHandler, useRef } from "react";
-import Game from "./components/game/Game";
+import { FormEvent, useRef } from "react";
+import Game from "./game/components/Game";
+import { GameServiceContext } from "./contexts";
+import GameService from "./game/GameService";
 
 export default function App() {
 
-  return <Game />
+  return (
+    <GameServiceContext.Provider value={new GameService()}>
+      <Game />
+    </GameServiceContext.Provider>
+  );
 }
 
 interface LoginProps {
@@ -35,7 +41,7 @@ function Login({ isRegister }: LoginProps) {
     };
 
     console.log(postObj);
-    
+
 
     //postLoginRegister(postObj);
   }

@@ -1,19 +1,14 @@
-import IMAGES from "../../images";
-import AnswerEffect from "../../models/AnswerEffect";
-import ChallengeOption from "../../models/ChallengeOption";
+import IMAGES from "../../images.ts";
+import { AnswerChallengeResult } from "../types/AnswerChallengeResult";
+
 
 interface ChallengeConsequencesProps { 
-  selectedOption: ChallengeOption,
+  answerChallengeResult: AnswerChallengeResult,
   onNextChallenge: () => void
 }
 
-export default function ChallengeConsequences({ selectedOption, onNextChallenge }: ChallengeConsequencesProps) {
-  const { answer, consequence } = selectedOption;
-  const effect = {
-    health: selectedOption.health,
-    money: selectedOption.money,
-    power: selectedOption.power
-  } as AnswerEffect
+export default function ChallengeConsequences({ answerChallengeResult, onNextChallenge }: ChallengeConsequencesProps) {
+  const { answer, consequence, effect } = answerChallengeResult;
   return (
     <>
       <div className="challenge-consequenses">

@@ -8,5 +8,8 @@ export default defineConfig({
     port: 8080,
     host: true,
     strictPort: true
+  },
+  server: {
+    port: 5173
   }
 })

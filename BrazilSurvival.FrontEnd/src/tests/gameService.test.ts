@@ -1,5 +1,5 @@
 import { assert, describe, it } from "vitest";
-import GameService from "../components/gameService";
+import GameService from "../game/GameService";
 
 describe("GameService tests", () => {
 

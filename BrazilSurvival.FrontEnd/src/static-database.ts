@@ -1,4 +1,4 @@
-import Challenge from "./models/Challenge";
+import Challenge from "./game/types/Challenge";
 
 class StaticDatabase {
     private static challenges: Challenge[] = [

@@ -1,5 +1,5 @@
 import AnswerOption from "./AnswerOption";
-import Challenge from "../../models/Challenge";
+import Challenge from "../types/Challenge";
 
 interface ChallengeQuestionaryProps {
   challenge: Challenge,
@@ -11,7 +11,14 @@ export default function ChallengeQuestionary({ challenge, onAnswerSelected }: Ch
     <>
       <h4 className="challenge-title">{challenge.title}</h4>
       <div className="answer-options">
-        {challenge.options.map((v, i) => <AnswerOption key={i} onAnswerSelected={() => onAnswerSelected(i)} text={`${i + 1}. ${v.action}`} />)}
+        {
+          challenge.options.map((challengeOption, i) => 
+            <AnswerOption 
+              key={challengeOption.id} 
+              onAnswerSelected={() => onAnswerSelected(challengeOption.id)} 
+              text={`${i + 1}. ${challengeOption.action}`} 
+            />)
+        }
       </div>
     </>
   );
