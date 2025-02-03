@@ -17,5 +17,6 @@ public class AutoMapperProfiles : Profile
         CreateMap<AnswerChallengeResult, AnswerChallengeResultDTO>();
         CreateMap<PlayerStats, PlayerStatsDTO>().ReverseMap();
         CreateMap<PlayerScore, PlayerScoreDTO>().ReverseMap();
+        CreateMap<AnswerEffect, AnswerEffectDTO>();
     }
 }

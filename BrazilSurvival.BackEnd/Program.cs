@@ -12,6 +12,21 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 
+if (builder.Environment.IsDevelopment())
+{
+    builder.Services.AddCors(options =>
+    {
+        options.AddDefaultPolicy(policy =>
+        {
+            policy
+            .WithOrigins("http://localhost:5173")
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .Build();
+        });
+    });
+}
+
 builder.Services.Configure<Microsoft.AspNetCore.Mvc.JsonOptions>(options =>
 {
     options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
@@ -35,8 +50,8 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-app.MapControllers();
 app.UseCors();
+app.MapControllers();
 
 if (app.Environment.IsDevelopment())
 {
@@ -44,10 +59,10 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-if(app.Environment.IsProduction())
+if (app.Environment.IsProduction())
 {
     app.UseExceptionHandler();
 }
 
 
-app.Run("http://localhost:5000/api");
+app.Run("http://localhost:5000");

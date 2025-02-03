@@ -42,18 +42,25 @@ public class GameService
             stats.Power + selectedOption.Power
         );
 
-        bool isGameOver = newPlayerStats.Health <= 0 || newPlayerStats.Money <= 0 || newPlayerStats.Power <= 0;
+        AnswerEffect effect = new()
+        {
+            Health = selectedOption.Health,
+            Money = selectedOption.Money,
+            Power = selectedOption.Power 
+        };
+
+    bool isGameOver = newPlayerStats.Health <= 0 || newPlayerStats.Money <= 0 || newPlayerStats.Power <= 0;
 
         if (requestNewChallenges && isGameOver == false)
         {
             challenges = await challengeRepo.GetChallengesAsync();
-        }
+}
 
-        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, newPlayerStats, isGameOver, challenges);
+        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, effect, newPlayerStats, isGameOver, challenges);
     }
 
     public async Task<List<Challenge>> GetRandomChallenges()
-    {
-        return await challengeRepo.GetChallengesAsync();
-    }
+{
+    return await challengeRepo.GetChallengesAsync();
+}
 }
