@@ -1,6 +1,7 @@
 
-import IMAGES from "../../images";
-import PlayerStats from "./PlayerStats";
+import IMAGES from "../../../images";
+import PlayerStats from "../../types/PlayerStats";
+import "./playerStats.scss";
 
 interface PlayerStatsElementsProps {
   playerStats: PlayerStats,

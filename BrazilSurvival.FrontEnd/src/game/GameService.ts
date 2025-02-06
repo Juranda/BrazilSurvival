@@ -1,7 +1,7 @@
 import axios from "axios";
-import PlayerStats from "./components/PlayerStats";
+import PlayerStats from "./types/PlayerStats";
 import { NextChallengeAnswer } from "./types/NextChallengeAnswer";
-import { GameStartedResponse } from "./components/GameStartedResponse";
+import { GameStartedResponse } from "./types/GameStartedResponse";
 import PlayerScorePost from "./types/PlayerScorePost";
 
 export default class GameService {
@@ -11,7 +11,7 @@ export default class GameService {
         timeout: 50000,
         headers: {
             "Content-Type": "application/json"
-        }
+        },
     });
 
     private readonly playerScoreEndpoint = axios.create({
@@ -25,7 +25,7 @@ export default class GameService {
 
     public async startGame(gameStatus?: PlayerStats): Promise<GameStartedResponse> {
         const response = await this.gameEndpoint.post<GameStartedResponse>("/start", gameStatus);
-        console.log(response)
+
         return response.data;
     }
 

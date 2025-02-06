@@ -1,10 +1,10 @@
-import PlayerStats from "../components/PlayerStats";
+import PlayerStats from "./PlayerStats";
 import Challenge from "./Challenge";
 import { NextChallengeAnswer } from "./NextChallengeAnswer";
 
 export interface GameState {
-  gameIsLoading: boolean;
-  gameIsOver: boolean;
+  isOver: boolean;
+  isLoading: boolean;
   challenges: Challenge[];
   currentChallenge: Challenge;
   selectedAnswer: number;

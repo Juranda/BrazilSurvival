@@ -1,5 +1,5 @@
-import IMAGES from "../../images.ts";
-import { AnswerChallengeResult } from "../types/AnswerChallengeResult";
+import IMAGES from "../../../images.ts";
+import { AnswerChallengeResult } from "../../types/AnswerChallengeResult.ts";
 
 
 interface ChallengeConsequencesProps { 

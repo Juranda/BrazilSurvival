@@ -1,4 +1,4 @@
-import PlayerStats from "../components/PlayerStats";
+import PlayerStats from "./PlayerStats";
 import AnswerEffect from "./AnswerEffect";
 import Challenge from "./Challenge";
 

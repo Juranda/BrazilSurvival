@@ -1,5 +1,5 @@
 import { FormEvent, useContext, useEffect, useRef, useState } from "react";
-import { GameServiceContext } from "../../contexts";
+import { GameServiceContext } from "../../../contexts";
 
 interface GameOverProps {
   score: number,
@@ -10,10 +10,10 @@ type GameOverState = "over" | "registerning" | "registered" | "fail";
 
 export default function GameOver({ score, restartGame }: GameOverProps) {
   const [gameOverState, setGameOverState] = useState<GameOverState>("over");
-  const playerNameRef = useRef<HTMLInputElement>(null)
   const [playerName, setPlayerName] = useState("");
-  const gameService = useContext(GameServiceContext);
   const [invalidPlayerName, setInvalidPlayerName] = useState("");
+  const playerNameRef = useRef<HTMLInputElement>(null)
+  const gameService = useContext(GameServiceContext);
 
   useEffect(() => {
     playerNameRef.current?.select();

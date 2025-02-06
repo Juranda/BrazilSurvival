@@ -1,5 +1,5 @@
 import AnswerOption from "./AnswerOption";
-import Challenge from "../types/Challenge";
+import Challenge from "../../types/Challenge";
 
 interface ChallengeQuestionaryProps {
   challenge: Challenge,
