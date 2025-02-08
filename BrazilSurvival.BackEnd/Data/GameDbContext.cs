@@ -13,9 +13,18 @@ public class GameDbConext : DbContext
         modelBuilder.Entity<PlayerScore>()
             .HasIndex(s => s.Name)
             .IsUnique(true);
+        
+        modelBuilder.Entity<Challenge>()
+            .HasMany(c => c.Options)
+            .WithOne(o => o.Challenge)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<ChallengeOption>()
+            .HasMany(co => co.Consequences)
+            .WithOne(con => con.ChallengeOption)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 
     public DbSet<Challenge> Challenges { get; set; }
-    public DbSet<ChallengeOption> ChallengeOptions { get; set; }
     public DbSet<PlayerScore> PlayerScores { get; set; }
 }

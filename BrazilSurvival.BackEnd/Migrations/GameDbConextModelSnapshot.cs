@@ -20,7 +20,7 @@ namespace BrazilSurvival.BackEnd.Migrations
                 .HasAnnotation("ProductVersion", "9.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 31);
 
-            modelBuilder.Entity("BrazilSurvival.BackEnd.Models.Domain.Challenge", b =>
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.Challenge", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -29,14 +29,15 @@ namespace BrazilSurvival.BackEnd.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("BLOB SUB_TYPE TEXT");
+                        .HasMaxLength(255)
+                        .HasColumnType("VARCHAR(255)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Challenges");
                 });
 
-            modelBuilder.Entity("BrazilSurvival.BackEnd.Models.Domain.ChallengeOption", b =>
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.ChallengeOption", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -45,36 +46,56 @@ namespace BrazilSurvival.BackEnd.Migrations
 
                     b.Property<string>("Action")
                         .IsRequired()
-                        .HasColumnType("BLOB SUB_TYPE TEXT");
+                        .HasMaxLength(50)
+                        .HasColumnType("VARCHAR(50)");
 
-                    b.Property<string>("Answer")
-                        .IsRequired()
-                        .HasColumnType("BLOB SUB_TYPE TEXT");
-
-                    b.Property<int?>("ChallengeId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Consequence")
-                        .IsRequired()
-                        .HasColumnType("BLOB SUB_TYPE TEXT");
-
-                    b.Property<int>("Health")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Money")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("Power")
+                    b.Property<int>("ChallengeId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ChallengeId");
 
-                    b.ToTable("ChallengeOptions");
+                    b.ToTable("ChallengeOption");
                 });
 
-            modelBuilder.Entity("BrazilSurvival.BackEnd.Models.Domain.PlayerScore", b =>
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.ChallengeOptionConsequence", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasAnnotation("Fb:ValueGenerationStrategy", FbValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Answer")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("VARCHAR(100)");
+
+                    b.Property<int>("ChallengeOptionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Consequence")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("VARCHAR(255)");
+
+                    b.Property<int?>("Health")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Money")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int?>("Power")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChallengeOptionId");
+
+                    b.ToTable("ChallengeOptionConsequence");
+                });
+
+            modelBuilder.Entity("BrazilSurvival.BackEnd.PlayersScores.Models.PlayerScore", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -83,26 +104,50 @@ namespace BrazilSurvival.BackEnd.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("BLOB SUB_TYPE TEXT");
+                        .HasMaxLength(6)
+                        .HasColumnType("VARCHAR(6)");
 
                     b.Property<int>("Score")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Name")
+                        .IsUnique();
+
                     b.ToTable("PlayerScores");
                 });
 
-            modelBuilder.Entity("BrazilSurvival.BackEnd.Models.Domain.ChallengeOption", b =>
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.ChallengeOption", b =>
                 {
-                    b.HasOne("BrazilSurvival.BackEnd.Models.Domain.Challenge", null)
+                    b.HasOne("BrazilSurvival.BackEnd.Challenges.Models.Challenge", "Challenge")
                         .WithMany("Options")
-                        .HasForeignKey("ChallengeId");
+                        .HasForeignKey("ChallengeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Challenge");
                 });
 
-            modelBuilder.Entity("BrazilSurvival.BackEnd.Models.Domain.Challenge", b =>
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.ChallengeOptionConsequence", b =>
+                {
+                    b.HasOne("BrazilSurvival.BackEnd.Challenges.Models.ChallengeOption", "ChallengeOption")
+                        .WithMany("Consequences")
+                        .HasForeignKey("ChallengeOptionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ChallengeOption");
+                });
+
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.Challenge", b =>
                 {
                     b.Navigation("Options");
+                });
+
+            modelBuilder.Entity("BrazilSurvival.BackEnd.Challenges.Models.ChallengeOption", b =>
+                {
+                    b.Navigation("Consequences");
                 });
 #pragma warning restore 612, 618
         }

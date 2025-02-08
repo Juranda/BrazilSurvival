@@ -17,13 +17,19 @@ public class ProcessErrorExceptionHandler : IExceptionHandler
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
         logger.LogError(exception, exception.Message);
-        if (exception is not ProcessException processException)
+
+        int statusCode;
+        string whosToBlame = "";
+
+        if (exception is ProcessException processException)
         {
-            return false;
+            statusCode = processException.statusCode;
+        }
+        else
+        {
+            statusCode = 500;
         }
 
-        var statusCode = processException.statusCode;
-        var whosToBlame = "Nobody";
 
         if (statusCode >= 300 && statusCode < 400)
         {
@@ -41,17 +47,17 @@ public class ProcessErrorExceptionHandler : IExceptionHandler
         var problemDetails = new ProblemDetails
         {
             Title = exception.Message,
-            Status = processException.statusCode,
+            Status = statusCode,
             Extensions = {
                 {
-                    "whosToBlame", whosToBlame 
+                    "whosToBlame", whosToBlame
                 }
             }
         };
 
-        httpContext.Response.StatusCode = processException.statusCode;
+        httpContext.Response.StatusCode = statusCode;
 
-        logger.LogInformation(problemDetails.ToString());
+        logger.LogInformation("{detail}", new { detail = problemDetails.ToString() });
 
         return await _problemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
@@ -75,4 +81,8 @@ public class ProcessException : Exception
         this.detail = detail;
         this.statusCode = statusCode;
     }
+
+
+    public static ProcessException InternalServerError() => new ProcessException("Internal server error", "", 500);
+    public static ProcessException NotFound() => new ProcessException("Item not found", "", 500);
 }

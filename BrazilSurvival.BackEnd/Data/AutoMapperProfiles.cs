@@ -1,5 +1,6 @@
 using AutoMapper;
 using BrazilSurvival.BackEnd.Challenges.Models;
+using BrazilSurvival.BackEnd.Challenges.Models.DTO;
 using BrazilSurvival.BackEnd.Game;
 using BrazilSurvival.BackEnd.Game.Models;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
@@ -14,6 +15,9 @@ public class AutoMapperProfiles : Profile
     {
         CreateMap<Challenge, ChallengeDTO>();
         CreateMap<ChallengeOption, ChallengeOptionDTO>();
+        CreateMap<PostChallengeRequest, Challenge>();
+        CreateMap<PostChallengeOption, ChallengeOption>();
+        CreateMap<PostOptionConsequence, ChallengeOptionConsequence>();
         CreateMap<AnswerChallengeResult, AnswerChallengeResultDTO>();
         CreateMap<PlayerStats, PlayerStatsDTO>().ReverseMap();
         CreateMap<PlayerScore, PlayerScoreDTO>().ReverseMap();

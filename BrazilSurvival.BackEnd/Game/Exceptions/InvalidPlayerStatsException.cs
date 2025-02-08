@@ -15,6 +15,10 @@ public class InvalidPlayerStatsException : ProcessException
 // Excecao interna para servicos
 public class NotFoundException : Exception
 {
+    public NotFoundException() : base("Not found")
+    {
+    }
+
     public NotFoundException(string? message) : base(message ?? "Resource not found")
     {
     }
