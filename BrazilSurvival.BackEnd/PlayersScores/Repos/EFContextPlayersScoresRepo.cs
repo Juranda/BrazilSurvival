@@ -1,4 +1,5 @@
 using BrazilSurvival.BackEnd.Data;
+using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,19 +14,13 @@ public class EFContextPlayersScoresRepo : IPlayerScoreRepo
         this.context = context;
     }
 
-    public async Task<PlayerScore?> GetPlayerScoreAsync(int id)
+    public async Task<Result<PlayerScore>> GetPlayerScoreAsync(int id)
     {
-        var playerScores = context.PlayerScores.Where(x => x.Id == id);
+        var playerScore = await context.PlayerScores.Where(x => x.Id == id).SingleOrDefaultAsync();
 
-        PlayerScore? playerScore;
-
-        try
+        if (playerScore is null)
         {
-            playerScore = playerScores.Single();
-        }
-        catch
-        {
-            playerScore = null;
+            return Error.NotFound();
         }
 
         return await Task.FromResult(playerScore);
@@ -34,9 +29,9 @@ public class EFContextPlayersScoresRepo : IPlayerScoreRepo
     public async Task<List<PlayerScore>> GetPlayerScoresAsync(int quantity = 10)
     {
         return await context.PlayerScores.OrderByDescending(x => x.Score).ToListAsync();
-    }
+    }   
 
-    public async Task<PlayerScore> PostPlayerScoreAsync(PlayerScore playerScore)
+    public async Task<Result<PlayerScore>> PostPlayerScoreAsync(PlayerScore playerScore)
     {
         var playerScoreInDB = context.PlayerScores.Where(x => x.Name == playerScore.Name);
 

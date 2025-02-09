@@ -1,11 +1,12 @@
+using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 
 namespace BrazilSurvival.BackEnd.PlayersScores.Repos;
 
 public class StaticPlayersRepo : IPlayerScoreRepo
 {
-    List<PlayerScore> playersScores = new()
-    {
+    readonly List<PlayerScore> playersScores =
+    [
         new PlayerScore() {
             Id = 0,
             Name = "FELIPE",
@@ -27,18 +28,15 @@ public class StaticPlayersRepo : IPlayerScoreRepo
             Name = "SOFIS2",
             Score = 100
         }
-    };
+    ];
 
-    public async Task<PlayerScore?> GetPlayerScoreAsync(int id)
+    public async Task<Result<PlayerScore>> GetPlayerScoreAsync(int id)
     {
-        var playerScores = playersScores.Where(x => x.Id == id);
+        var playerScore = playersScores.Where(x => x.Id == id).SingleOrDefault();
 
-        PlayerScore? playerScore;
-
-        try {
-            playerScore = playerScores.Single();
-        } catch {
-            playerScore = null;
+        if (playerScore is null)
+        {
+            return Error.NotFound();
         }
 
         return await Task.FromResult(playerScore);
@@ -49,14 +47,9 @@ public class StaticPlayersRepo : IPlayerScoreRepo
         return await Task.FromResult(playersScores.OrderByDescending(x => x.Score).ToList());
     }
 
-    public async Task<PlayerScore> PostPlayerScoreAsync(PlayerScore playerScore)
+    public async Task<Result<PlayerScore>> PostPlayerScoreAsync(PlayerScore playerScore)
     {
-
-        playerScore.Id = playersScores.Count();
-
-
-        playerScore.Id = playersScores.Count();
-
+        playerScore.Id = playersScores.Count;
         playersScores.Add(playerScore);
 
         return await Task.FromResult(playerScore);

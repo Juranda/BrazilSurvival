@@ -1,11 +1,11 @@
 using AutoMapper;
-using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.CustomActionFilters;
-using BrazilSurvival.BackEnd.Game.Exceptions;
+using BrazilSurvival.BackEnd.Errors;
+using BrazilSurvival.BackEnd.ExceptionHandlers;
 using BrazilSurvival.BackEnd.Game.Models;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
-using BrazilSurvival.BackEnd.PlayersScores;
+using BrazilSurvival.BackEnd.Game.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.Game;
@@ -14,43 +14,37 @@ namespace BrazilSurvival.BackEnd.Game;
 [ApiController]
 public class GameController : ControllerBase
 {
-    private readonly GameService gameService;
+    private readonly IGameService gameService;
     private readonly IMapper mapper;
 
-    public GameController(GameService gameService, IMapper mapper)
+    public GameController(IGameService gameService, IMapper mapper)
     {
         this.gameService = gameService;
         this.mapper = mapper;
     }
 
-
     [HttpPost("start")]
     [ValidateModel]
     public async Task<IActionResult> Start([FromBody] PlayerStatsDTO? request)
     {
-        try
-        {
-            var result = await gameService.StartGame(mapper.Map<PlayerStats>(request));
-            return Ok(new GameStartResponse(mapper.Map<PlayerStatsDTO>(result.Item1), mapper.Map<List<ChallengeDTO>>(result.Item2)));
-        }
-        catch (NotFoundException e)
-        {
-            throw new ProcessException(e.Message, null ,StatusCodes.Status404NotFound);
-        }
+        var (playerStats, challenges) = await gameService.StartGame(mapper.Map<PlayerStats>(request));
+
+        return Ok(new GameStartResponse(mapper.Map<PlayerStatsDTO>(playerStats), mapper.Map<List<ChallengeDTO>>(challenges)));
     }
 
     [HttpPost("next")]
     [ValidateModel]
     public async Task<IActionResult> NextChallenge([FromBody] GameNextChallengeRequest request)
     {
-        try
+        var result = await gameService.AnswerChallenge(mapper.Map<PlayerStats>(request.PlayerStats), request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
+
+        if (result.HasError)
         {
-            var result = await gameService.NextChallenge(mapper.Map<PlayerStats>(request.PlayerStats), request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
-            return Ok(mapper.Map<AnswerChallengeResultDTO>(result));
+            return ErrorResponse.NotFound(result.Error.Message);
         }
-        catch (NotFoundException e)
-        {
-            throw new ProcessException(e.Message, null, StatusCodes.Status404NotFound);
-        }
+
+        AnswerChallengeResult answerChallengeResult = result.Value;
+
+        return Ok(mapper.Map<AnswerChallengeResultDTO>(answerChallengeResult));
     }
 }

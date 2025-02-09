@@ -1,11 +1,13 @@
+using System.Security.Cryptography;
 using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Models;
-using BrazilSurvival.BackEnd.Game.Exceptions;
+using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.Game.Models;
+using BrazilSurvival.BackEnd.Game.Services;
 
 namespace BrazilSurvival.BackEnd.Game;
 
-public class GameService
+public class GameService : IGameService
 {
     private readonly IChallengeRepo challengeRepo;
 
@@ -13,7 +15,7 @@ public class GameService
     {
         this.challengeRepo = challengeRepo;
     }
-    public async Task<Tuple<PlayerStats, List<Challenge>>> StartGame(PlayerStats? playerStats)
+    public async Task<(PlayerStats, List<Challenge>)> StartGame(PlayerStats? playerStats)
     {
         if (playerStats == null)
         {
@@ -22,45 +24,52 @@ public class GameService
 
         var challenges = await challengeRepo.GetChallengesAsync();
 
-        return new(playerStats, challenges);
+        return (playerStats, challenges);
     }
 
-    public async Task<AnswerChallengeResult> NextChallenge(PlayerStats stats, int challengeId, int optionId, bool requestNewChallenges)
+    public async Task<Result<AnswerChallengeResult>> AnswerChallenge(PlayerStats playerStats, int challengeId, int optionId, bool requestNewChallenges)
     {
-        List<Challenge>? challenges = null;
-        var challenge = await challengeRepo.GetChallengeAsync(challengeId);
-        var selectedOption = challenge.Options.First(x => x.Id == optionId);
+        List<Challenge> newChallenges = [];
+
+        Result<Challenge> result = await challengeRepo.GetChallengeAsync(challengeId);
+
+        if (result.HasError)
+        {
+            return Error.NotFound("Invalid challenge id");
+        }
+
+        Challenge challenge = result.Value;
+        ChallengeOption? selectedOption = challenge.Options.FirstOrDefault(x => x.Id == optionId);
 
         if (selectedOption is null)
         {
-            throw new NotFoundException("Invalid answer id");
+            return Error.NotFound("Invalid answer id");
         }
 
-        PlayerStats newPlayerStats = new(
-            stats.Health + selectedOption.Health,
-            stats.Money + selectedOption.Money,
-            stats.Power + selectedOption.Power
-        );
+        int randomNumber = RandomNumberGenerator.GetInt32(selectedOption.Consequences.Count);
+        ChallengeOptionConsequence consequence = selectedOption.Consequences.ElementAt(randomNumber);
+
+        PlayerStats newPlayerStats = new()
+        {
+            Health = playerStats.Health + consequence.Health ?? 0,
+            Money = playerStats.Money + consequence.Money ?? 0,
+            Power = playerStats.Power + consequence.Power ?? 0
+        };
 
         AnswerEffect effect = new()
         {
-            Health = selectedOption.Health,
-            Money = selectedOption.Money,
-            Power = selectedOption.Power 
+            Health = consequence.Health ?? 0,
+            Money = consequence.Money ?? 0,
+            Power = consequence.Power ?? 0
         };
 
-    bool isGameOver = newPlayerStats.Health <= 0 || newPlayerStats.Money <= 0 || newPlayerStats.Power <= 0;
+        bool isGameOver = newPlayerStats.Health <= 0 || newPlayerStats.Money <= 0 || newPlayerStats.Power <= 0;
 
         if (requestNewChallenges && isGameOver == false)
         {
-            challenges = await challengeRepo.GetChallengesAsync();
-}
+            newChallenges = await challengeRepo.GetChallengesAsync();
+        }
 
-        return new AnswerChallengeResult(selectedOption.Answer, selectedOption.Consequence, effect, newPlayerStats, isGameOver, challenges);
+        return new AnswerChallengeResult(consequence.Answer, consequence.Consequence, effect, newPlayerStats, isGameOver, newChallenges);
     }
-
-    public async Task<List<Challenge>> GetRandomChallenges()
-{
-    return await challengeRepo.GetChallengesAsync();
-}
 }

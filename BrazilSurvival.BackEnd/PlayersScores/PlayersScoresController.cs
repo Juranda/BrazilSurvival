@@ -1,5 +1,6 @@
 using AutoMapper;
 using BrazilSurvival.BackEnd.CustomActionFilters;
+using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 using BrazilSurvival.BackEnd.PlayersScores.Models.DTO;
@@ -24,24 +25,20 @@ public class PlayersScoresController : ControllerBase
     public async Task<IActionResult> GetPlayersScores()
     {
         var playerScores = await playerScoreRepo.GetPlayerScoresAsync();
-
-        if (playerScores.Count == 0)
-        {
-            return NotFound();
-        }
-
         return Ok(mapper.Map<List<PlayerScoreDTO>>(playerScores));
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPlayerScore(int id)
     {
-        var playerScore = await playerScoreRepo.GetPlayerScoreAsync(id);
+        var result = await playerScoreRepo.GetPlayerScoreAsync(id);
 
-        if (playerScore == null)
+        if (result.HasError)
         {
             return NotFound();
         }
+
+        var playerScore = result.Value;
 
         return Ok(mapper.Map<PlayerScoreDTO>(playerScore));
     }
@@ -57,7 +54,14 @@ public class PlayersScoresController : ControllerBase
             Score = request.Score
         };
 
-        playerScore = await playerScoreRepo.PostPlayerScoreAsync(playerScore);
+        Result<PlayerScore> result = await playerScoreRepo.PostPlayerScoreAsync(playerScore);
+
+        if (result.HasError)
+        {
+            return ErrorResponse.InternalServerError();
+        }
+
+        playerScore = result.Value;
 
         return CreatedAtAction(nameof(GetPlayerScore), new { playerScore.Id }, mapper.Map<PlayerScoreDTO>(playerScore));
     }
