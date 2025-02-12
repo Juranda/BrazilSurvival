@@ -3,9 +3,8 @@ using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.Game.Models;
-using BrazilSurvival.BackEnd.Game.Services;
 
-namespace BrazilSurvival.BackEnd.Game;
+namespace BrazilSurvival.BackEnd.Game.Services;
 
 public class GameService : IGameService
 {

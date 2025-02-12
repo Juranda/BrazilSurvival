@@ -15,6 +15,7 @@ public class GlobalExceptionHandler : IExceptionHandler
 
     public async ValueTask<bool> TryHandleAsync(HttpContext httpContext, Exception exception, CancellationToken cancellationToken)
     {
+        logger.LogError("{message}", exception);
         return await _problemDetailsService.TryWriteAsync(
             new ProblemDetailsContext
             {

@@ -22,11 +22,12 @@ public class Error
     public static Error NotFound(string message = "Resource not found") => new(ErrorType.NOT_FOUND, message);
     public static Error InvalidArgument(string message = "Invalid argument") => new(ErrorType.INVALID_ARGUMENT, message);
     public static Error Unauthorized(string message = "Unauthorized to this action or resource") => new(ErrorType.UNAUTHORIZED, message);
+
+    public enum ErrorType
+    {
+        NOT_FOUND = 1,
+        INVALID_ARGUMENT = 2,
+        UNAUTHORIZED = 3
+    }
 }
 
-public enum ErrorType
-{
-    NOT_FOUND = 1,
-    INVALID_ARGUMENT = 2,
-    UNAUTHORIZED = 3
-}

@@ -41,10 +41,15 @@ public class ErrorResponse
             extensions.Add("errors", Errors);
         }
 
-        return (IActionResult) Results.Problem(
-            Message,
-            extensions: extensions
-        );
+        var result = new ObjectResult(new ProblemDetails
+        {
+            Title = Message,
+            Detail = Detail,
+            Status = StatusCode,
+            Extensions = extensions,
+        });
+
+        return result;
     }
 
     private static string DefineWhosToBlame(int statusCode)

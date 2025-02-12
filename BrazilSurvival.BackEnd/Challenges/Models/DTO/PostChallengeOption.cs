@@ -5,7 +5,7 @@ namespace BrazilSurvival.BackEnd.Challenges.Models.DTO;
 public class PostChallengeOption
 {
     [Required]
-    [StringLength(70, MinimumLength = 1)]
+    [StringLength(50, MinimumLength = 1)]
     public required string Action { get; set; }
 
     [Required]

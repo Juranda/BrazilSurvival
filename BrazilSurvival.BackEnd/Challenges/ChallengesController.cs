@@ -2,7 +2,7 @@ using AutoMapper;
 using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.Challenges.Models.DTO;
 using BrazilSurvival.BackEnd.Errors;
-using BrazilSurvival.BackEnd.ExceptionHandlers;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.Challenges;

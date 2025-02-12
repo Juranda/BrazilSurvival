@@ -15,6 +15,7 @@ public class EFContextChallengesRepo : IChallengeRepo
     public async Task<List<Challenge>> GetChallengesAsync(int quantity = 10)
     {
         return await context.Challenges
+            .OrderBy(c => c.Id)
             .Take(quantity)
             .Include(c => c.Options)
             .ThenInclude(o => o.Consequences)
@@ -30,7 +31,7 @@ public class EFContextChallengesRepo : IChallengeRepo
             .FirstOrDefaultAsync();
 
 
-        if (challenge == null)
+        if (challenge is null)
         {
             return Error.NotFound();
         }
@@ -41,8 +42,6 @@ public class EFContextChallengesRepo : IChallengeRepo
 
     public async Task<Result<Challenge>> PostChallengeAsync(Challenge challenge)
     {
-        // Talvez validar o desafio, por isso o result
-
         await context.Challenges.AddAsync(challenge);
         await context.SaveChangesAsync();
         return challenge;
