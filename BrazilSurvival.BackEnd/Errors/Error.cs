@@ -4,17 +4,20 @@ public class Error
 {
     public int Code { get; set; }
     public string Message { get; set; }
+    public ErrorType Type { get; set; }
     public string[] Errors { get; set; }
 
     public Error(ErrorType error, string message = "")
     {
         Errors = [];
+        Type = error;
         Code = (int)error;
         Message = message;
     }
     public Error(ErrorType error, string message = "", params string[] errors)
     {
         Errors = errors;
+        Type = error;
         Code = (int)error;
         Message = message;
     }
@@ -30,4 +33,3 @@ public class Error
         UNAUTHORIZED = 3
     }
 }
-

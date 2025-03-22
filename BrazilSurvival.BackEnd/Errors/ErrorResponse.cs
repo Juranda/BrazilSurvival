@@ -25,10 +25,21 @@ public class ErrorResponse
         Errors = errors;
     }
 
+    public static IActionResult FromError(Error error)
+    {
+        return error.Type switch
+        {
+            Error.ErrorType.NOT_FOUND => NotFound(error),
+            Error.ErrorType.INVALID_ARGUMENT => InvalidArgument(error),
+            _ => throw new NotImplementedException(),
+        };
+    }
+
     public static IActionResult InternalServerError(string message = "Something went wrong") => new ErrorResponse(message, statusCode: StatusCodes.Status500InternalServerError).ToActionResult();
     public static IActionResult NotFound(string message = "Item not found") => new ErrorResponse(message, statusCode: StatusCodes.Status404NotFound).ToActionResult();
     public static IActionResult NotFound(Error error) => NotFound(error.Message);
     public static IActionResult InvalidArgument(string message = "Invalid argument", params string[] errors) => new ErrorResponse(message, errors, statusCode: StatusCodes.Status400BadRequest).ToActionResult();
+    public static IActionResult InvalidArgument(Error error) => new ErrorResponse(error.Message, error.Errors, statusCode: StatusCodes.Status400BadRequest).ToActionResult();
     public IActionResult ToActionResult()
     {
         Dictionary<string, object?> extensions = new()

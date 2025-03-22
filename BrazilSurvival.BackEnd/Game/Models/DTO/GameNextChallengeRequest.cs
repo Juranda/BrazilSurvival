@@ -4,7 +4,7 @@ namespace BrazilSurvival.BackEnd.Game.Models.DTO;
 
 public record GameNextChallengeRequest(
     [Required]
-    PlayerStatsDTO PlayerStats,
+    Guid Token,
     [Required]
     int ChallengeId,
     [Required]

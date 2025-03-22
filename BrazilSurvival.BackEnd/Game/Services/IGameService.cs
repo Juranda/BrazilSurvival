@@ -6,6 +6,6 @@ namespace BrazilSurvival.BackEnd.Game.Services;
 
 public interface IGameService
 {
-    public Task<(PlayerStats, List<Challenge>)> StartGame(PlayerStats? playerStats);
-    public Task<Result<AnswerChallengeResult>> AnswerChallenge(PlayerStats stats, int challengeId, int optionId, bool requestNewChallenges);
+    public Task<(Guid, PlayerStats, List<Challenge>)> StartGame(PlayerStats? playerStats);
+    public Task<Result<AnswerChallengeResult>> AnswerChallenge(Guid token, int challengeId, int optionId, bool requestNewChallenges);
 }

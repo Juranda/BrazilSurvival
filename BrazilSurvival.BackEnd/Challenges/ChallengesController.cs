@@ -46,6 +46,7 @@ public class ChallengesController : ControllerBase
         return Ok(challengeDTO);
     }
 
+    [Authorize(Roles = AuthorizationPolicies.ADMINISTRATOR)]
     [HttpPost]
     public async Task<IActionResult> PostChallenge([FromBody] PostChallengeRequest request)
     {

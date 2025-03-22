@@ -17,6 +17,7 @@ const initialState: GameState = {
         title: "",
         options: []
     },
+    token: "",
     selectedAnswer: ANSWER_NOT_SELECTED,
     playerStats: {
         health: 0,
@@ -81,7 +82,8 @@ function handleOnGameStartedDispatch(state: GameState, payload: Partial<GameStat
         challenges: payload.challenges as Challenge[],
         isOver: false,
         selectedAnswer: ANSWER_NOT_SELECTED,
-        playerStats: payload.playerStats as PlayerStats
+        playerStats: payload.playerStats as PlayerStats,
+        token: payload.token as string,
     }
 }
 
@@ -136,13 +138,13 @@ const useGame = () => {
     async function initializeGameState() {
         if (gameState.isLoading) return;
         try {
-
             dispatchGameEvent({ type: "on-game-loading", payload: {} });
             const response = await gameService.startGame();
 
             const newGameState: Partial<GameState> = {
                 challenges: response.challenges,
                 playerStats: response.playerStats,
+                token: response.token,
             };
 
             dispatchGameEvent({ type: "on-game-stop-loading", payload: {} });
@@ -152,13 +154,14 @@ const useGame = () => {
                 payload: newGameState
             });
         } catch (err) {
+            dispatchGameEvent({ type: "on-game-stop-loading", payload: {} });
             setError(err as Error);
         }
     }
 
     async function handleOnNextChallenge() {
-        if(gameState.isLoading) return;
-        
+        if (gameState.isLoading) return;
+
         dispatchGameEvent({ type: "on-game-loading", payload: {} });
 
         if (gameState.nextChallengeResult.isGameOver) {
@@ -184,8 +187,7 @@ const useGame = () => {
 
         try {
             dispatchGameEvent({ type: "on-game-loading", payload: {} });
-            const nextChallengeAnswer = await gameService.nextChallenge(gameState.playerStats, gameState.currentChallenge.id, selectedOption, gameState.challenges.length === 0);
-
+            const nextChallengeAnswer = await gameService.nextChallenge(gameState.token, gameState.currentChallenge.id, selectedOption, gameState.challenges.length === 0);
             dispatchGameEvent({ type: "on-game-stop-loading", payload: {} });
 
             dispatchGameEvent({
@@ -198,10 +200,10 @@ const useGame = () => {
             });
 
         } catch (err) {
+            dispatchGameEvent({ type: "on-game-stop-loading", payload: {} });
             setError(err as Error);
         }
     }
-
 
     return {
         isLoading: gameState.isLoading,
@@ -217,6 +219,8 @@ const useGame = () => {
         start: initializeGameState,
     };
 }
+
+
 
 
 export default useGame;

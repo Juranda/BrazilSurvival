@@ -1,11 +1,7 @@
 import { createContext } from "react";
-import GameService from "./game/GameService";
+import GameService, { IGameService } from "./game/GameService";
 
-
-
-const GameServiceContext = createContext<GameService>(new GameService());
-
-
+const GameServiceContext = createContext<IGameService>(new GameService());
 
 export {
     GameServiceContext

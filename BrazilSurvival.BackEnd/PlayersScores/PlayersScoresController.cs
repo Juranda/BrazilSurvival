@@ -4,6 +4,7 @@ using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 using BrazilSurvival.BackEnd.PlayersScores.Models.DTO;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.PlayersScores;
@@ -22,9 +23,9 @@ public class PlayersScoresController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetPlayersScores()
+    public async Task<IActionResult> GetPlayersScores([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var playerScores = await playerScoreRepo.GetPlayerScoresAsync();
+        var playerScores = await playerScoreRepo.GetPlayerScoresAsync(page, pageSize);
         return Ok(mapper.Map<List<PlayerScoreDTO>>(playerScores));
     }
 
@@ -45,23 +46,17 @@ public class PlayersScoresController : ControllerBase
 
     [HttpPost]
     [ValidateModel]
+    [Authorize("")]
     public async Task<IActionResult> PostNewPlayerScore([FromBody] PlayerScorePostRequest request)
     {
-        var playerScore = new PlayerScore()
-        {
-            Id = 0,
-            Name = request.Name.ToUpper(),
-            Score = request.Score
-        };
-
-        Result<PlayerScore> result = await playerScoreRepo.PostPlayerScoreAsync(playerScore);
+        Result<PlayerScore> result = await playerScoreRepo.PostPlayerScoreAsync(request.Token, request.Name);
 
         if (result.HasError)
         {
-            return ErrorResponse.InternalServerError();
+            return ErrorResponse.FromError(result.Error);
         }
-
-        playerScore = result.Value;
+        
+        PlayerScore playerScore = result.Value;
 
         return CreatedAtAction(nameof(GetPlayerScore), new { playerScore.Id }, mapper.Map<PlayerScoreDTO>(playerScore));
     }

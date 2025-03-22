@@ -1,4 +1,6 @@
+using System.Security.Cryptography;
 using BrazilSurvival.BackEnd.Errors;
+using BrazilSurvival.BackEnd.Game.Models;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 
 namespace BrazilSurvival.BackEnd.PlayersScores.Repos;
@@ -10,23 +12,35 @@ public class StaticPlayersRepo : IPlayerScoreRepo
         new PlayerScore() {
             Id = 0,
             Name = "FELIPE",
-            Score = 25
+            Score = 25,
+            GameStateToken = Guid.NewGuid(),
+            GameState = new GameState {
+            }
         }
         ,
         new PlayerScore() {
             Id = 1,
             Name = "SPACED",
-            Score = 50
+            Score = 50,
+            GameStateToken = Guid.NewGuid(),
+            GameState = new GameState {
+            }
         }
         ,new PlayerScore() {
             Id = 2,
             Name = "VINICS",
-            Score = 75
+            Score = 75,
+            GameStateToken = Guid.NewGuid(),
+            GameState = new GameState {
+            }
         },
         new PlayerScore() {
             Id = 3,
             Name = "SOFIS2",
-            Score = 100
+            Score = 100,
+            GameStateToken = Guid.NewGuid(),
+            GameState = new GameState {
+            }
         }
     ];
 
@@ -42,14 +56,27 @@ public class StaticPlayersRepo : IPlayerScoreRepo
         return await Task.FromResult(playerScore);
     }
 
-    public async Task<List<PlayerScore>> GetPlayerScoresAsync(int quantity = 10)
+    public async Task<List<PlayerScore>> GetPlayerScoresAsync(int page = 1, int pageSize = 10)
     {
-        return await Task.FromResult(playersScores.OrderByDescending(x => x.Score).ToList());
+        List<PlayerScore> playerScores = playersScores
+            .OrderByDescending(x => x.Score)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToList();
+        return await Task.FromResult(playerScores);
     }
 
-    public async Task<Result<PlayerScore>> PostPlayerScoreAsync(PlayerScore playerScore)
+    public async Task<Result<PlayerScore>> PostPlayerScoreAsync(Guid token, string name)
     {
-        playerScore.Id = playersScores.Count;
+        PlayerScore playerScore = new()
+        {
+            Id = playersScores.Count,
+            Name = name,
+            GameState = new(),
+            GameStateToken = token,
+            Score = RandomNumberGenerator.GetInt32(100)
+        };
+
         playersScores.Add(playerScore);
 
         return await Task.FromResult(playerScore);

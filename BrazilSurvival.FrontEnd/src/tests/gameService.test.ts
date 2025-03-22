@@ -20,7 +20,7 @@ describe("GameService tests", () => {
     it("gameService should modify player stats", async () => {
         const gameService = new GameService();
 
-        const gameStartResponse = await gameService.nextChallenge({ health: 20, money: 20, power: 20}, 0, 0);
+        const gameStartResponse = await gameService.nextChallenge("", 0, 0);
         const { answer, consequence, isGameOver, newChallenges } = gameStartResponse;
 
         assert(answer.length > 0);

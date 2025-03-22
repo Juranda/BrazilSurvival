@@ -27,20 +27,20 @@ public class GameController : ControllerBase
     [ValidateModel]
     public async Task<IActionResult> Start([FromBody] PlayerStatsDTO? request)
     {
-        var (playerStats, challenges) = await gameService.StartGame(mapper.Map<PlayerStats>(request));
+        var (token, playerStats, challenges) = await gameService.StartGame(mapper.Map<PlayerStats>(request));
 
-        return Ok(new GameStartResponse(mapper.Map<PlayerStatsDTO>(playerStats), mapper.Map<List<ChallengeDTO>>(challenges)));
+        return Ok(new GameStartResponse(token, mapper.Map<PlayerStatsDTO>(playerStats), mapper.Map<List<ChallengeDTO>>(challenges)));
     }
 
     [HttpPost("next")]
     [ValidateModel]
     public async Task<IActionResult> NextChallenge([FromBody] GameNextChallengeRequest request)
     {
-        var result = await gameService.AnswerChallenge(mapper.Map<PlayerStats>(request.PlayerStats), request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
+        var result = await gameService.AnswerChallenge(request.Token, request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);
 
         if (result.HasError)
         {
-            return ErrorResponse.NotFound(result.Error.Message);
+            return ErrorResponse.FromError(result.Error);
         }
 
         AnswerChallengeResult answerChallengeResult = result.Value;

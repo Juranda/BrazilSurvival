@@ -3,32 +3,57 @@ using BrazilSurvival.BackEnd.Challenges;
 using BrazilSurvival.BackEnd.Challenges.Models;
 using BrazilSurvival.BackEnd.Errors;
 using BrazilSurvival.BackEnd.Game.Models;
+using BrazilSurvival.BackEnd.Game.Repo;
 
 namespace BrazilSurvival.BackEnd.Game.Services;
 
 public class GameService : IGameService
 {
     private readonly IChallengeRepo challengeRepo;
+    private readonly IGameStateRepo gameStateRepo;
 
-    public GameService(IChallengeRepo challengeRepo)
+    public GameService(IChallengeRepo challengeRepo, IGameStateRepo gameStateRepo)
     {
         this.challengeRepo = challengeRepo;
+        this.gameStateRepo = gameStateRepo;
     }
-    public async Task<(PlayerStats, List<Challenge>)> StartGame(PlayerStats? playerStats)
+
+    public async Task<(Guid, PlayerStats, List<Challenge>)> StartGame(PlayerStats? playerStats)
     {
         if (playerStats == null)
         {
             playerStats = new PlayerStats(10, 10, 10);
         }
 
+        GameState gameState = new()
+        {
+            Token = Guid.NewGuid(),
+            Health = playerStats.Health,
+            Money = playerStats.Money,
+            Power = playerStats.Power,
+        };
+
         var challenges = await challengeRepo.GetChallengesAsync();
 
-        return (playerStats, challenges);
+        gameState = await gameStateRepo.PostGameState(gameState);
+
+        return (gameState.Token, playerStats, challenges);
     }
 
-    public async Task<Result<AnswerChallengeResult>> AnswerChallenge(PlayerStats playerStats, int challengeId, int optionId, bool requestNewChallenges)
+    public async Task<Result<AnswerChallengeResult>> AnswerChallenge(Guid token, int challengeId, int optionId, bool requestNewChallenges)
     {
-        List<Challenge> newChallenges = [];
+        Result<GameState> gameStateResult = await gameStateRepo.GetGameState(token);
+
+        if (gameStateResult.HasError)
+        {
+            return Error.NotFound("Invalid token");
+        }
+
+        GameState gameState = gameStateResult.Value;
+        if (gameState.IsOver)
+        {
+            return Error.InvalidArgument("Can not update game after it's ended");
+        }
 
         Result<Challenge> result = await challengeRepo.GetChallengeAsync(challengeId);
 
@@ -45,15 +70,33 @@ public class GameService : IGameService
             return Error.NotFound("Invalid answer id");
         }
 
-        int randomNumber = RandomNumberGenerator.GetInt32(selectedOption.Consequences.Count);
-        ChallengeOptionConsequence consequence = selectedOption.Consequences.ElementAt(randomNumber);
+        var (newGameState, consequence, effect) = await ApplyRandomConsequence(gameState, selectedOption);
 
         PlayerStats newPlayerStats = new()
         {
-            Health = playerStats.Health + consequence.Health ?? 0,
-            Money = playerStats.Money + consequence.Money ?? 0,
-            Power = playerStats.Power + consequence.Power ?? 0
+            Health = newGameState.Health,
+            Money = newGameState.Money,
+            Power = newGameState.Power
         };
+
+        List<Challenge> newChallenges = [];
+
+        if (requestNewChallenges && newGameState.IsOver == false)
+        {
+            newChallenges = await challengeRepo.GetChallengesAsync();
+        }
+
+        return new AnswerChallengeResult(gameState.Token, consequence.Answer, consequence.Consequence, effect, newPlayerStats, newGameState.IsOver, newChallenges);
+    }
+
+    private async Task<(GameState, ChallengeOptionConsequence, AnswerEffect)> ApplyRandomConsequence(GameState gameState, ChallengeOption option)
+    {
+        int randomNumber = RandomNumberGenerator.GetInt32(option.Consequences.Count);
+        ChallengeOptionConsequence consequence = option.Consequences.ElementAt(randomNumber);
+
+        gameState.Health += consequence.Health ?? 0;
+        gameState.Money += consequence.Money ?? 0;
+        gameState.Power += consequence.Power ?? 0;
 
         AnswerEffect effect = new()
         {
@@ -62,13 +105,26 @@ public class GameService : IGameService
             Power = consequence.Power ?? 0
         };
 
-        bool isGameOver = newPlayerStats.Health <= 0 || newPlayerStats.Money <= 0 || newPlayerStats.Power <= 0;
-
-        if (requestNewChallenges && isGameOver == false)
+        if (gameState.Health <= 0 || gameState.Money <= 0 || gameState.Power <= 0)
         {
-            newChallenges = await challengeRepo.GetChallengesAsync();
+            gameState.Score++;
         }
 
-        return new AnswerChallengeResult(consequence.Answer, consequence.Consequence, effect, newPlayerStats, isGameOver, newChallenges);
+        Result<GameState> result = await gameStateRepo.UpdateGameState(gameState);
+
+        if (result.HasError)
+        {
+            throw new Exception("ApplyRandomConsequence resulted in a error");
+        }
+
+        gameState = result.Value;
+
+        return (gameState, consequence, effect);
+    }
+
+    private async Task<GameState> EndGame(GameState gameState)
+    {
+        Result<GameState> result = await gameStateRepo.UpdateGameState(gameState);
+        return result.Value;
     }
 }

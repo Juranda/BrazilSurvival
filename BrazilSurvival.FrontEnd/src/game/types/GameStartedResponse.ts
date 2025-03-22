@@ -4,4 +4,5 @@ import Challenge from "./Challenge";
 export interface GameStartedResponse {
     playerStats: PlayerStats;
     challenges: Challenge[];
+    token: string;
 }

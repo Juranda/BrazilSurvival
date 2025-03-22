@@ -10,5 +10,6 @@ export interface GameState {
   selectedAnswer: number;
   playerStats: PlayerStats;
   score: number;
-  nextChallengeResult: NextChallengeAnswer
+  nextChallengeResult: NextChallengeAnswer;
+  token: string;
 }

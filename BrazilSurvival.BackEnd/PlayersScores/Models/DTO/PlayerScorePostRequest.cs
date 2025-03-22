@@ -4,9 +4,8 @@ namespace BrazilSurvival.BackEnd.PlayersScores.Models.DTO;
 
 public record PlayerScorePostRequest(
     [Required]
-    [StringLength(6, MinimumLength = 6, ErrorMessage = "Name should have 6 characters")]
-    string Name,
-
+    Guid Token,
     [Required]
-    int Score
+    [StringLength(6, MinimumLength = 6, ErrorMessage = "Name should have 6 characters")]
+    string Name
 );

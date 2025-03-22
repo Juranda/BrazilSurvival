@@ -7,18 +7,18 @@ import useGame from "./useGame";
 import './game.scss';
 
 export default function Game() {
-  const { 
-    error, 
-    hasSelectedAnswer, 
-    isOver, 
+  const {
+    error,
+    hasSelectedAnswer,
+    isOver,
     isLoading,
     score,
     currentChallenge,
     currentConsequences: consequences,
     playerStats,
-    onAnswerSelected, 
-    onNextChallenge, 
-    start 
+    onAnswerSelected,
+    onNextChallenge,
+    start
   } = useGame();
 
   const renderState = () => {
@@ -62,9 +62,10 @@ export default function Game() {
         <>
           <h2 className="title">Brazil Survival</h2>
           <div className="game-body">
-            <ChallengeQuestionary
-              challenge={currentChallenge}
-              onAnswerSelected={onAnswerSelected} />
+            <ChallengeConsequences
+              answerChallengeResult={consequences}
+              onNextChallenge={onNextChallenge} />
+
           </div>
         </>
       );
@@ -74,9 +75,9 @@ export default function Game() {
       <>
         <h2 className="title">Brazil Survival</h2>
         <div className="game-body">
-          <ChallengeConsequences
-            answerChallengeResult={consequences}
-            onNextChallenge={onNextChallenge} />
+          <ChallengeQuestionary
+            challenge={currentChallenge}
+            onAnswerSelected={onAnswerSelected} />
         </div>
       </>
     )
