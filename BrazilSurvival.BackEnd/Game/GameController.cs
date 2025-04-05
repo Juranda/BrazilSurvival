@@ -6,6 +6,7 @@ using BrazilSurvival.BackEnd.ExceptionHandlers;
 using BrazilSurvival.BackEnd.Game.Models;
 using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.Game.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BrazilSurvival.BackEnd.Game;
@@ -25,6 +26,7 @@ public class GameController : ControllerBase
 
     [HttpPost("start")]
     [ValidateModel]
+    [AllowAnonymous]
     public async Task<IActionResult> Start([FromBody] PlayerStatsDTO? request)
     {
         var (token, playerStats, challenges) = await gameService.StartGame(mapper.Map<PlayerStats>(request));
@@ -34,6 +36,7 @@ public class GameController : ControllerBase
 
     [HttpPost("next")]
     [ValidateModel]
+    [AllowAnonymous]
     public async Task<IActionResult> NextChallenge([FromBody] GameNextChallengeRequest request)
     {
         var result = await gameService.AnswerChallenge(request.Token, request.ChallengeId, request.OptionId, request.RequestNewChallenges ?? false);

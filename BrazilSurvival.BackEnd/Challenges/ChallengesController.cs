@@ -9,6 +9,7 @@ namespace BrazilSurvival.BackEnd.Challenges;
 
 [Route("[controller]")]
 [ApiController]
+[Authorize(Roles = AuthorizationPolicies.ADMINISTRATOR_OR_PLAYER)]
 public class ChallengesController : ControllerBase
 {
     private readonly IChallengeRepo challengeRepo;
@@ -21,9 +22,10 @@ public class ChallengesController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetChallenges()
     {
-        List<Challenge> challenges = await challengeRepo.GetChallengesAsync();
+        List<Challenge> challenges = await challengeRepo.GetChallengesAsync(100);
 
         var challengesDTO = mapper.Map<List<ChallengeDTO>>(challenges);
 
@@ -46,7 +48,6 @@ public class ChallengesController : ControllerBase
         return Ok(challengeDTO);
     }
 
-    [Authorize(Roles = AuthorizationPolicies.ADMINISTRATOR)]
     [HttpPost]
     public async Task<IActionResult> PostChallenge([FromBody] PostChallengeRequest request)
     {

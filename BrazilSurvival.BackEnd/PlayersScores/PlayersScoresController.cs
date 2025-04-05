@@ -1,7 +1,6 @@
 using AutoMapper;
 using BrazilSurvival.BackEnd.CustomActionFilters;
 using BrazilSurvival.BackEnd.Errors;
-using BrazilSurvival.BackEnd.Game.Models.DTO;
 using BrazilSurvival.BackEnd.PlayersScores.Models;
 using BrazilSurvival.BackEnd.PlayersScores.Models.DTO;
 using Microsoft.AspNetCore.Authorization;
@@ -46,7 +45,7 @@ public class PlayersScoresController : ControllerBase
 
     [HttpPost]
     [ValidateModel]
-    [Authorize("")]
+    [Authorize(AuthorizationPolicies.PLAYER)]
     public async Task<IActionResult> PostNewPlayerScore([FromBody] PlayerScorePostRequest request)
     {
         Result<PlayerScore> result = await playerScoreRepo.PostPlayerScoreAsync(request.Token, request.Name);
